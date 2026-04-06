@@ -123,7 +123,7 @@ function App() {
       <main className="main-content">
         <FilterHeader 
           industries={Array.from(new Set(tickers.map(t => t.industry)))}
-          categories={Array.from(new Set(news.map(n => (n as any).Subject)))}
+          categories={[...Object.keys(dse_event_taxonomy), 'Other']}
           selectedIndustry={selectedIndustry}
           setSelectedIndustry={setSelectedIndustry}
           selectedCategory={selectedSubject}
