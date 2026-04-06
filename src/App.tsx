@@ -70,7 +70,7 @@ function App() {
   const [dateRange, setDateRange] = useState<{start: Date | null, end: Date | null}>({ start: null, end: null });
 
   useEffect(() => {
-    fetch('/newsData.json')
+    fetch(import.meta.env.BASE_URL + 'newsData.json')
       .then(res => res.json())
       .then(data => {
         setTickers(data.tickersList);
