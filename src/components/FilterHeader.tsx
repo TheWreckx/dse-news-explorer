@@ -1,4 +1,4 @@
-import { FiFilter, FiCalendar, FiClock } from 'react-icons/fi';
+import { FiFilter, FiClock } from 'react-icons/fi';
 
 interface FilterHeaderProps {
   industries: string[];
@@ -63,14 +63,38 @@ const FilterHeader = ({
             </select>
         </div>
 
-        <div className="filter-group" style={{ position: 'relative' }}>
-            <div 
-              onClick={handleClearDates}
-              title="Clear Dates"
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-blue)', cursor: 'pointer', background: 'rgba(59, 130, 246, 0.1)', padding: '10px 16px', borderRadius: '8px' }}>
-              <FiCalendar /> 
-              {dateRange.start ? 'Custom Dates' : 'All Dates'}
+        <div className="filter-group" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Start Date (2017-2025)</span>
+              <input 
+                type="date" 
+                min="2017-01-01" 
+                max="2025-12-31" 
+                value={dateRange.start ? dateRange.start.toISOString().split('T')[0] : ''}
+                onChange={(e) => setDateRange({ ...dateRange, start: e.target.value ? new Date(e.target.value) : null })}
+                style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '6px 10px', color: '#fff', fontSize: '13px' }}
+              />
             </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>End Date</span>
+              <input 
+                type="date" 
+                min="2017-01-01" 
+                max="2025-12-31" 
+                value={dateRange.end ? dateRange.end.toISOString().split('T')[0] : ''}
+                onChange={(e) => setDateRange({ ...dateRange, end: e.target.value ? new Date(e.target.value) : null })}
+                style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '6px 10px', color: '#fff', fontSize: '13px' }}
+              />
+            </div>
+            {(dateRange.start || dateRange.end) && (
+              <div 
+                onClick={handleClearDates}
+                style={{ color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '12px', marginTop: '14px', padding: '0 5px' }}
+                title="Clear Dates"
+              >
+                Clear
+              </div>
+            )}
         </div>
 
       </div>
