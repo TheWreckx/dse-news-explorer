@@ -23,6 +23,7 @@ const FilterHeader = ({
   setDateRange,
   totalResults
 }: FilterHeaderProps) => {
+  const today = new Date().toISOString().split('T')[0];
 
   const handleClearDates = () => {
     setDateRange({start: null, end: null});
@@ -65,11 +66,11 @@ const FilterHeader = ({
 
         <div className="filter-group" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Start Date (2017-2025)</span>
+              <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Start Date (2017-Present)</span>
               <input 
                 type="date" 
                 min="2017-01-01" 
-                max="2025-12-31" 
+                max={today} 
                 value={dateRange.start ? dateRange.start.toISOString().split('T')[0] : ''}
                 onChange={(e) => setDateRange({ ...dateRange, start: e.target.value ? new Date(e.target.value) : null })}
                 style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '6px 10px', color: '#fff', fontSize: '13px' }}
@@ -80,7 +81,7 @@ const FilterHeader = ({
               <input 
                 type="date" 
                 min="2017-01-01" 
-                max="2025-12-31" 
+                max={today} 
                 value={dateRange.end ? dateRange.end.toISOString().split('T')[0] : ''}
                 onChange={(e) => setDateRange({ ...dateRange, end: e.target.value ? new Date(e.target.value) : null })}
                 style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '6px 10px', color: '#fff', fontSize: '13px' }}
