@@ -68,6 +68,7 @@ function App() {
   const [selectedIndustry, setSelectedIndustry] = useState<string>('All');
   const [selectedSubject, setSelectedSubject] = useState<string>('All');
   const [dateRange, setDateRange] = useState<{ start: Date | null, end: Date | null }>({ start: null, end: null });
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
     fetch(import.meta.env.BASE_URL + 'newsData.json')
@@ -131,10 +132,13 @@ function App() {
           dateRange={dateRange}
           setDateRange={setDateRange}
           totalResults={filteredNews.length}
+          viewMode={viewMode}
+          setViewMode={setViewMode}
+          filteredNews={filteredNews}
         />
 
         <div className="content-area">
-          <NewsFeed news={filteredNews} />
+          <NewsFeed news={filteredNews} viewMode={viewMode} />
         </div>
       </main>
     </div>

@@ -1,0 +1,57 @@
+name: Update DSE News Data
+
+on:
+  schedule:
+    # 6:05 AM Bangladesh time (UTC+6) = 00:05 UTC, every day
+    - cron: '5 0 * * *'
+  workflow_dispatch:
+    inputs:
+      full_sync:
+        description: 'Full sync (fetch last 180 days)?'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+permissions:
+  contents: write
+
+jobs:
+  update-news:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: scripts/requirements.txt
+
+      - name: Install Python dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Run scraper
+        run: |
+          if [ "${{ github.event.inputs.full_sync }}" = "true" ]; then
+            python scripts/scrape_dse.py --full
+          else
+            python scripts/scrape_dse.py
+          fi
+
+      - name: Commit and push if data changed
+        run: |
+          git config user.name "DSE News Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/newsData.json
+          if git diff --staged --quiet; then
+            echo "No changes to newsData.json — skipping commit"
+          else
+            git commit -m "chore: update DSE news data $(date -u '+%Y-%m-%d')"
+            git push
+          fi

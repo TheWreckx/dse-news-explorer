@@ -313,6 +313,65 @@ input:focus, select:focus {
   text-decoration: underline;
 }
 
+/* List view */
+.news-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.news-list-row {
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  align-items: start;
+  gap: 16px;
+  padding: 14px 20px;
+  border-radius: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.news-list-row:hover {
+  transform: translateX(4px);
+  box-shadow: var(--shadow-glow);
+  border-color: rgba(59, 130, 246, 0.25);
+}
+
+.news-list-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+.news-list-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.news-list-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.news-list-text {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.news-list-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  padding-top: 2px;
+  min-width: 100px;
+}
+
 .empty-state {
   display: flex;
   flex-direction: column;
