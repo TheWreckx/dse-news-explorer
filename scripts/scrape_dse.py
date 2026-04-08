@@ -21,20 +21,48 @@ from pathlib import Path
 # Category taxonomy for keyword classification
 # ---------------------------------------------------------------------------
 DSE_TAXONOMY = {
-    "Dividends_Earnings": [
-        "cash dividend", "stock dividend", "bonus share", "dividend declaration",
-        "no dividend", "interim dividend", "final dividend", "record date",
-        "earnings per share", "net asset value", "nocfps",
-        "profit", "loss", "financial statements", "quarterly report",
-        "audited financials", "un-audited", "unaudited", "q1 financials",
-        "q2 financials", "q3 financials", "q4 financials", "annual financials",
-        "consolidated eps", "eps was tk", "nav was tk"
-    ],
+    # Checked in order — most specific first to avoid greedy early matches
     "Distress_Bankruptcy": [
         "bankruptcy", "insolvency", "liquidation", "winding up", "cib default",
         "production suspension", "factory closure", "layoff", "auction",
         "going concern", "qualified opinion", "asset seizure",
-        "adverse opinion", "disclaimer of opinion", "loan default", "classified loan"
+        "adverse opinion", "disclaimer of opinion", "loan default",
+        "classified loan", "appoints administrator", "administrator for the company",
+        "financial difficulties", "unable to pay", "non-performing loan",
+        "write off", "write-off",
+    ],
+    "Capital_Structure": [
+        "rights issue", "right issue", "right share", "stock split", "reverse split",
+        "share buyback", "buy back shares", "par value", "paid-up capital",
+        "authorized capital", "dilution", "renunciation", "subscription period",
+        "capitalization of reserve", "initial public offering", "ipo proceeds",
+        "rpo proceeds", "capital raising proceeds", "subordinated bond",
+        "convertible bond", "preference share", "issuance of bond",
+        "bond of bdt", "right issue proceeds", "right issue fund",
+        "auditor's report regarding", "auditor report regarding",
+        "unsecured non-convertible", "irredeemable non-cumulative",
+        "mudaraba bond", "mudaraba subordinated", "bsec consent for issuance",
+        "bsec's consent for issuance", "bsec consent to issue",
+        "bsec's consent to issue", "bsec consent regarding issuance",
+        "consent for issuance", "consent to issue",
+    ],
+    "Regulatory_Legal": [
+        "bsec order", "show cause", "fine imposed", "penalty imposed",
+        "non-compliance", "trading suspension", "delisting", "category change",
+        "trading halt", "writ petition", "litigation", "forensic audit",
+        "enforcement action", "legal notice", "court order",
+        "bsec declines", "bsec denies", "bsec rejects", "bsec cancelled",
+        "bsec cancels", "price limit open", "price limit remove",
+        "prohibition on", "suspended from trading",
+        "btrc", "regulatory order", "regulatory action",
+    ],
+    "Asset_Events": [
+        "sale of assets", "disposal of property", "lease agreement",
+        "asset revaluation", "property sale", "land sale",
+        "purchase of land", "purchase of property", "renting out",
+        "rental agreement", "land purchase", "building additional",
+        "sublease", "sub-lease", "mortgage of property",
+        "sale of land", "acquiring land",
     ],
     "Restructuring_Ownership": [
         "merger", "acquisition", "amalgamation", "takeover", "privatization",
@@ -42,32 +70,49 @@ DSE_TAXONOMY = {
         "director sale", "pledging of shares", "board reconstitution",
         "management change", "cfo appointment", "company secretary",
         "auditor appointment", "appointment of", "resignation of",
-        "managing director", "chief executive", "chairman", "acting md",
-        "new md", "new ceo", "board of directors"
-    ],
-    "Capital_Structure": [
-        "rights issue", "right share", "stock split", "reverse split",
-        "share buyback", "par value", "paid-up capital", "authorized capital",
-        "dilution", "renunciation", "subscription period",
-        "capitalization of reserve", "new share", "ipo"
+        "managing director", "chief executive", "acting chairman",
+        "acting md", "acting ceo", "board of directors",
+        "buy confirmation", "sell confirmation", "sale declaration",
+        "purchase confirmation", "share transmission",
+        "agm date", "egm date", "annual general meeting", "extraordinary general meeting",
+        "election of chairman", "election of director", "election of vice",
+        "reconstitution of board", "change of director", "new director",
+        "change of chairman", "new chairman", "new ceo", "new md",
+        "change of auditor", "appointment of auditor",
     ],
     "Operations_Growth": [
         "capacity expansion", "new production line", "commercial operation",
-        "export order", "joint venture", "mou", "memorandum of understanding",
-        "product launch", "machinery purchase", "land acquisition",
-        "factory building", "credit rating", "crisl", "surveillance rating",
-        "new project", "commissioning", "business expansion"
+        "export order", "joint venture", "memorandum of understanding",
+        "product launch", "machinery purchase", "new machinery",
+        "new machine", "new plant", "new equipment",
+        "credit rating", "crisl", "surveillance rating", "ecrl", "crab rating",
+        "new project", "commissioning", "business expansion",
+        "board approval for investment", "board approves investment",
+        "board approval for an investment", "board approval to invest",
+        "board approval for purchasing", "board approval for acquiring",
+        "board decision to import", "board decision to purchase",
+        "board approved the proposal", "board approves the proposal",
+        "board approves master", "board approval of",
+        "bangladesh bank consent for setting up", "bangladesh bank's approval for",
+        "bangladesh bank consent for opening", "mfs subsidiary",
+        "islamic finance window", "new branch", "spectrum",
+        "business agreement", "supply agreement", "manufacturing agreement",
+        "mou with", "mou signing", "investment in subsidiary",
     ],
-    "Regulatory_Legal": [
-        "bsec order", "show cause", "fine", "penalty", "non-compliance",
-        "trading suspension", "delisting", "category change", "trading halt",
-        "writ petition", "litigation", "forensic audit", "enforcement",
-        "legal notice", "court order", "regulatory", "suspended", "halt"
-    ],
-    "Asset_Events": [
-        "sale of assets", "disposal of property", "lease agreement",
-        "asset revaluation", "property sale", "land sale", "investment in",
-        "purchase of property", "mortgage"
+    "Dividends_Earnings": [
+        "cash dividend", "stock dividend", "bonus share", "dividend declaration",
+        "no dividend", "interim dividend", "final dividend", "record date",
+        "earnings per share", "net asset value", "nocfps",
+        "financial statements", "quarterly report", "half-yearly", "half yearly",
+        "annual report", "annual financials",
+        "audited financials", "un-audited", "unaudited",
+        "q1 financials", "q2 financials", "q3 financials", "q4 financials",
+        "consolidated eps", "eps was tk", "nav was tk", "daily nav",
+        "earnings disclosure", "dividend payment",
+        "bangladesh bank consent for declaring dividend",
+        "applying to bb for permission to declare dividend",
+        "profit after tax", "loss after tax", "net profit", "net loss",
+        "operating profit", "pre-tax profit",
     ],
 }
 
