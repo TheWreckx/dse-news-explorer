@@ -346,6 +346,16 @@ def main():
             raw_items.extend(fetch_by_ticker(ticker))
             time.sleep(0.4)
 
+    # ── Alert: fail loudly if DSE returned nothing at all ──────────────────
+    # This causes GitHub Actions to mark the run as FAILED, which triggers
+    # an automatic email notification from GitHub to the repo owner.
+    # Distinguishes between "quiet day" (raw_items > 0, new_items = 0)
+    # and "scraper is broken" (raw_items = 0).
+    if not raw_items:
+        print("ERROR: DSE returned 0 items — site may have changed or is blocking requests.")
+        print("Check https://www.dsebd.org/news_archive.php manually.")
+        sys.exit(1)
+
     # Build new items
     new_items: list[dict] = []
     max_id = max((item["id"] for item in real_existing), default=0)
@@ -381,12 +391,23 @@ def main():
 
     print(f"New items: {len(new_items)}")
 
-    data["newsList"] = new_items + real_existing
+    # ── 2-year rolling window: drop items older than 730 days ──────────────
+    # Keeps the JSON file from growing indefinitely. Items that age out of
+    # DSE's own archive (also 2 years) are no longer linkable anyway.
+    cutoff = (datetime.now() - timedelta(days=730)).strftime("%Y-%m-%d")
+    kept = [item for item in real_existing if item["Date"] >= cutoff]
+    trimmed = len(real_existing) - len(kept)
+    if trimmed:
+        print(f"Trimmed {trimmed} items older than {cutoff} (2-year cap)")
+
+    data["newsList"] = new_items + kept
 
     with open(data_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
 
-    print(f"Done — {len(data['newsList'])} total items in newsData.json")
+    total = len(data["newsList"])
+    size_mb = data_path.stat().st_size / 1_048_576
+    print(f"Done — {total:,} items in newsData.json ({size_mb:.1f} MB)")
 
 
 if __name__ == "__main__":

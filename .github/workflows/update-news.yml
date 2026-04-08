@@ -40,12 +40,15 @@ jobs:
         run: pip install -r scripts/requirements.txt
 
       - name: Run scraper
+        id: scraper
         run: |
           if [ "${{ github.event.inputs.full_sync }}" = "true" ]; then
             python scripts/scrape_dse.py --full
           else
             python scripts/scrape_dse.py
           fi
+        # If the scraper exits with code 1 (0 items from DSE), this step fails.
+        # GitHub will email the repo owner automatically on workflow failure.
 
       - name: Commit and push if data changed
         run: |
@@ -53,7 +56,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add public/newsData.json
           if git diff --staged --quiet; then
-            echo "No changes to newsData.json — skipping commit"
+            echo "No new items today — nothing to commit"
           else
             git commit -m "chore: update DSE news data $(date -u '+%Y-%m-%d')"
             git push
