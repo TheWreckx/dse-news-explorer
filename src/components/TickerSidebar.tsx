@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { TickerInfo } from '../types';
-import { FiSearch, FiCode } from 'react-icons/fi';
+import { FiSearch, FiCode, FiLinkedin } from 'react-icons/fi';
 
 interface TickerSidebarProps {
   tickers: TickerInfo[];
@@ -39,7 +39,7 @@ const TickerSidebar = ({ tickers, selectedTickers, toggleTicker }: TickerSidebar
         />
       </div>
 
-      <div className="ticker-list-container">
+      <div className="ticker-list-container" style={{ flex: 1 }}>
         {filteredTickers.map(t => (
           <div 
             key={t.ticker} 
@@ -68,6 +68,34 @@ const TickerSidebar = ({ tickers, selectedTickers, toggleTicker }: TickerSidebar
           </div>
         ))}
       </div>
+
+      {/* Credit */}
+      <a
+        href="https://www.linkedin.com/in/syed-tareq-aziz-hoque/"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '7px',
+          padding: '10px 12px',
+          borderRadius: '8px',
+          background: 'rgba(255,255,255,0.03)',
+          border: '1px solid var(--panel-border)',
+          textDecoration: 'none',
+          color: 'var(--text-secondary)',
+          fontSize: '0.75rem',
+          transition: 'all 0.2s',
+          marginTop: '4px',
+          flexShrink: 0,
+        }}
+        onMouseEnter={e => (e.currentTarget.style.color = '#0a66c2')}
+        onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-secondary)')}
+        title="View LinkedIn profile"
+      >
+        <FiLinkedin size={14} style={{ flexShrink: 0 }} />
+        <span>A project by <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Syed Tareq Aziz Hoque</strong></span>
+      </a>
     </div>
   );
 };

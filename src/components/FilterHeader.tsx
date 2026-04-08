@@ -1,6 +1,7 @@
 import { FiFilter, FiClock, FiGrid, FiList, FiDownload } from 'react-icons/fi';
 import * as XLSX from 'xlsx';
 import type { NewsItem } from '../types';
+import DseLogo from './DseLogo';
 
 interface FilterHeaderProps {
   industries: string[];
@@ -66,12 +67,12 @@ const FilterHeader = ({
   return (
     <div className="header glass-panel animated-fade" style={{ animationDelay: '0.2s', height: 'auto', padding: '16px 24px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, flexWrap: 'wrap' }}>
-        <h1
-          className="text-gradient"
-          style={{ fontSize: '1.4rem', fontWeight: 700, margin: 0, paddingRight: '16px', borderRight: '1px solid var(--panel-border)', whiteSpace: 'nowrap' }}
-        >
-          DSE Explorer
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingRight: '16px', borderRight: '1px solid var(--panel-border)', flexShrink: 0 }}>
+          <DseLogo size={34} />
+          <h1 className="text-gradient" style={{ fontSize: '1.4rem', fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>
+            DSE Explorer
+          </h1>
+        </div>
 
         <div className="filter-group">
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>

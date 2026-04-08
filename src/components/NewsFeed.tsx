@@ -61,7 +61,7 @@ const NewsFeed = ({ news, viewMode }: NewsFeedProps) => {
               </div>
               <div className="news-list-title">{item.News_Title}</div>
               <div className="news-list-text">
-                {item.News_Text.length > 120 ? item.News_Text.substring(0, 120) + '…' : item.News_Text}
+                {item.News_Text.length > 300 ? item.News_Text.substring(0, 300) + '…' : item.News_Text}
               </div>
             </div>
 
@@ -101,7 +101,7 @@ const NewsFeed = ({ news, viewMode }: NewsFeedProps) => {
           <div className="news-title">{item.News_Title}</div>
 
           <div className="news-text">
-            {item.News_Text.length > 150 ? item.News_Text.substring(0, 150) + '…' : item.News_Text}
+            {item.News_Text.length > 1000 ? item.News_Text.substring(0, 1000) + '…' : item.News_Text}
           </div>
 
           <div className="news-footer">
