@@ -283,7 +283,7 @@ def main():
     }
 
     # Date window
-    days_back = 180 if full_sync else 7
+    days_back = 730 if full_sync else 7
     end_date = datetime.now().strftime("%Y-%m-%d")
     start_date = (datetime.now() - timedelta(days=days_back)).strftime("%Y-%m-%d")
 
