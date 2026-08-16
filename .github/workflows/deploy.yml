@@ -49,3 +49,12 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      # Push notification to participating search engines. The sitemap alone
+      # only helps whenever a crawler chooses to return.
+      - name: Checkout for submission script
+        uses: actions/checkout@v5
+
+      - name: Notify search engines (IndexNow)
+        continue-on-error: true
+        run: node scripts/submit_indexnow.mjs

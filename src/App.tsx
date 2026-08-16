@@ -8,6 +8,7 @@ import { buildSearchIndex, searchItems } from './lib/search';
 import TickerSidebar from './components/TickerSidebar';
 import FilterHeader from './components/FilterHeader';
 import NewsFeed from './components/NewsFeed';
+import ArchiveBadge from './components/ArchiveBadge';
 
 /** A scrape more than two days old means the pipeline is stuck, not that DSE was quiet. */
 const STALE_AFTER_HOURS = 48;
@@ -142,6 +143,11 @@ function App() {
           freshness={freshness}
           meta={meta}
           onReset={reset}
+        />
+
+        <ArchiveBadge
+          meta={meta}
+          onShowBeyondSource={floorDate => update({ to: floorDate, from: '', query: '' })}
         />
 
         <div className="content-area">

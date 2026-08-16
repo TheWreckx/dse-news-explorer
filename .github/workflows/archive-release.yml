@@ -1,0 +1,85 @@
+name: Publish Archive Snapshot
+
+# The archive holds announcements DSE has already deleted from its own site, so
+# a bad force-push or a corrupted commit is not a recoverable mistake. This
+# publishes an immutable, checksummed snapshot each month that sits outside the
+# repository's history, and gives the dataset a stable citable download.
+#
+# This does NOT protect against loss of the GitHub account itself. For that,
+# download a snapshot periodically and keep a copy elsewhere — see README.
+
+on:
+  schedule:
+    # 03:00 UTC on the first of each month.
+    - cron: '0 3 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Build snapshot with checksums
+        id: snapshot
+        run: |
+          set -euo pipefail
+          STAMP=$(date -u '+%Y-%m-%d')
+          mkdir -p snapshot
+
+          cp public/newsData.json public/newsRoutine.json snapshot/
+          ( cd snapshot && sha256sum *.json > SHA256SUMS.txt )
+
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          with open("public/newsData.json", encoding="utf-8") as f:
+              meta = json.load(f)["meta"]
+          print(f"total={meta['totalCount']}")
+          print(f"material={meta['materialCount']}")
+          print(f"routine={meta['routineCount']}")
+          print(f"earliest={meta['earliestDate']}")
+          print(f"latest={meta['latestDate']}")
+          print(f"beyond={meta['beyondSourceCount']}")
+          PY
+
+          echo "stamp=$STAMP" >> "$GITHUB_OUTPUT"
+          tar -czf "dse-archive-$STAMP.tar.gz" -C snapshot .
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STAMP: ${{ steps.snapshot.outputs.stamp }}
+          TOTAL: ${{ steps.snapshot.outputs.total }}
+          MATERIAL: ${{ steps.snapshot.outputs.material }}
+          ROUTINE: ${{ steps.snapshot.outputs.routine }}
+          EARLIEST: ${{ steps.snapshot.outputs.earliest }}
+          LATEST: ${{ steps.snapshot.outputs.latest }}
+          BEYOND: ${{ steps.snapshot.outputs.beyond }}
+        run: |
+          set -euo pipefail
+          {
+            echo "Immutable snapshot of the DSE announcement archive."
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Announcements | $TOTAL |"
+            echo "| Material | $MATERIAL |"
+            echo "| Routine | $ROUTINE |"
+            echo "| Coverage | $EARLIEST to $LATEST |"
+            echo "| Already deleted from dsebd.org | $BEYOND |"
+            echo
+            echo "\`SHA256SUMS.txt\` inside the archive fingerprints each file."
+            echo "Individual records also carry a \`Content_Hash\`."
+            echo
+            echo "Source: [dsebd.org](https://www.dsebd.org/), the official Dhaka Stock Exchange website."
+          } > notes.md
+
+          gh release create "archive-$STAMP" \
+            "dse-archive-$STAMP.tar.gz" \
+            --title "Archive snapshot $STAMP" \
+            --notes-file notes.md

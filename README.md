@@ -39,6 +39,40 @@ thousands of NAV postings. Turn them on with *Include routine notices*.
 
 ---
 
+## Classification accuracy
+
+Measured 2026-08-16 on a **held-out** sample of 55 records — drawn with a
+different seed after the rules were tuned, excluding every record used for
+tuning. Labels are committed in `scripts/audit_labels_holdout.json` so the
+grader's judgement can be checked, not just the headline number.
+
+| Metric | Result |
+| --- | --- |
+| Category accuracy | **90.9%** (50/55) |
+| Routine vs material split | **100%** (55/55) |
+| **Material announcements hidden as routine** | **0** |
+
+That last row is the one that matters. Hiding a material announcement is the
+only error this system cannot report on itself: a buried record generates no
+clicks, no complaints and no analytics event, so the metrics look identical
+whether the rule is right or wrong. It is asserted in `test_classify.py` and
+checked on every workflow run.
+
+The remaining errors are almost all *under*-classification — announcements
+landing in `General` that deserved a specific category. Those are visible and
+recoverable; a reader still finds them through search.
+
+```bash
+python scripts/audit_classification.py --holdout --sample   # draw a fresh set
+python scripts/audit_classification.py --holdout            # score it
+```
+
+Re-audit after any significant rule change, and draw a new seed if you tuned
+against the existing sample — scoring against records you tuned on measures
+memorisation, not accuracy.
+
+---
+
 ## How it works
 
 ```
@@ -115,6 +149,31 @@ trimming destroys records that cannot be re-fetched from anywhere.
 **Scheduled workflows get disabled after 60 days of repository inactivity.**
 The daily job writes `lastChecked.json` even when nothing new is published, so
 a quiet stretch still produces a commit and the schedule stays alive.
+
+---
+
+---
+
+## Two things only the owner can do
+
+Everything else here is automated. These two need a human signed into an
+account, and both are worth doing once.
+
+**1. Google Search Console.** IndexNow (wired into the deploy workflow) notifies
+Bing and Yandex automatically, but Google does not participate. Sign in at
+[search.google.com/search-console](https://search.google.com/search-console),
+add `https://thewreckx.github.io/dse-news-explorer/` as a URL-prefix property,
+verify with the HTML-tag method (paste the tag into `index.html`), then submit
+`sitemap.xml`. Roughly fifteen minutes, and it is the difference between the
+398 company pages being indexed in days rather than weeks.
+
+**2. An off-GitHub copy.** `archive-release.yml` publishes a checksummed
+monthly snapshot, which protects against a bad force-push or a corrupted
+commit. It does **not** protect against losing the GitHub account — and since
+this archive holds announcements DSE has already deleted, that is a real
+single point of failure. Download a snapshot occasionally and keep it
+somewhere else. For a citable permanent copy with a DOI,
+[Zenodo](https://zenodo.org/) accepts a GitHub release directly and is free.
 
 ---
 

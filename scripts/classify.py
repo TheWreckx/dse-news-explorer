@@ -34,7 +34,9 @@ ROUTINE_RULES: list[tuple[re.Pattern, str]] = [
     (re.compile(
         r"(board|trustee)\s+(committee\s+)?meeting\s+schedule"
         r"|(postponement|reschedule|rescheduling)\s+of\s+(board|trustee)"
-        r"|meeting\s+(schedule\s+)?under\s+lr",
+        r"|meeting\s+(schedule\s+)?under\s+lr"
+        r"|change\s+of\s+(board|trustee)\s+meeting\s+date"
+        r"|trustee\s+meeting\s+to\s+declare",
         re.I,
     ), "Meeting_Schedule"),
 
@@ -68,7 +70,9 @@ TITLE_RULES: list[tuple[re.Pattern, str]] = [
         # Bond and sukuk income distributions are the fixed-income analogue
         # of a dividend and belong in the same subject.
         r"|coupon\s+(amount|rate)?\s*(disbursement|declaration|payment)"
-        r"|profit\s+disbursement|coupon\s+rate",
+        r"|profit\s+disbursement|coupon\s+rate"
+        r"|revised\s+record\s+date|new\s+record\s+date"
+        r"|periodic\s+payment|conference\s+on\s+.*financial\s+result",
         re.I,
     ), "Dividends_Earnings"),
 
@@ -104,7 +108,8 @@ TITLE_RULES: list[tuple[re.Pattern, str]] = [
         r"|paid[\s-]?up\s+capital|authorized\s+capital|subordinated\s+bond"
         r"|convertible\s+bond|preference\s+share|issuance\s+of\s+bond"
         r"|ipo\s+proceeds|consent\s+(for\s+issuance|to\s+issue)"
-        r"|capital\s+raising\s+proceeds|proceeds\s+utilizations?",
+        r"|capital\s+raising\s+proceeds|proceeds\s+utilizations?"
+        r"|conversion\s+of\s+.*sukuk|sukuk\s+conversion",
         re.I,
     ), "Capital_Structure"),
 
@@ -112,7 +117,9 @@ TITLE_RULES: list[tuple[re.Pattern, str]] = [
         r"(sale|purchase|lease|revaluation|disposal)\s+of\s+(land|asset|propert)"
         r"|land\s+(sale|purchase|lease)|renting\s+out|asset\s+revaluation"
         r"|sub[\s-]?lease|mortgage\s+of|valuation\s+report"
-        r"|purchas\w+\s+.*\b(plot|bigha|katha|decimal\s+land)\b",
+        r"|purchas\w+\s+.*\b(plot|bigha|katha|decimal\s+land)\b"
+        r"|surrender\s+of\s+.*land|valuation\s+of\s+assets"
+        r"|sell\s+vessels?|sale\s+of\s+vessels?",
         re.I,
     ), "Asset_Events"),
 
@@ -125,7 +132,9 @@ TITLE_RULES: list[tuple[re.Pattern, str]] = [
         r"|transmission\s+of.*share|share\s+transmission"
         r"|share\s+(transfer|receipt)|transfer\s+of\s+share"
         r"|by\s+a\s+(sponsor|director)|sponsor\s+director"
-        r"|(buy|sell|sale|purchase|transfer)\s+(confirmation|declaration|intimation)",
+        r"|(buy|sell|sale|purchase|transfer)\s+(confirmation|declaration|intimation)"
+        r"|share\s+(sale|purchase)\s+agreement|\bspa\b"
+        r"|object\s+clause|memorandum\s+of\s+association|\bmoa\b",
         re.I,
     ), "Restructuring_Ownership"),
 
@@ -136,7 +145,9 @@ TITLE_RULES: list[tuple[re.Pattern, str]] = [
         r"|export\s+order|business\s+expansion|machinery"
         r"|(supply|manufacturing|business|distribution)\s+agreement"
         r"|(set(ting)?\s+up|establishment)\s+of|new\s+unit|expansion\s+of"
-        r"|\bmachine\b|procurement\s+of|power\s+purchase|purchase\s+contract",
+        r"|\bmachine\b|procurement\s+of|power\s+purchase|purchase\s+contract"
+        r"|joint[\s-]?venture\s+compan|formation\s+of\s+a\s+joint"
+        r"|production\s+lines?\b",
         re.I,
     ), "Operations_Growth"),
 ]

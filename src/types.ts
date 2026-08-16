@@ -30,6 +30,10 @@ export interface ArchiveMeta {
   routineCount: number;
   earliestDate: string | null;
   latestDate: string | null;
+  /** Boundary of DSE's own rolling two-year archive. */
+  sourceFloorDate: string | null;
+  /** Records older than that boundary — held here and nowhere public else. */
+  beyondSourceCount: number;
 }
 
 export interface NewsDataPayload {

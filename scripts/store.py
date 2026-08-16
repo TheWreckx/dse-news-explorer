@@ -13,7 +13,7 @@ they live in a second file the browser only fetches if the reader asks for it.
 """
 
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from classify import ROUTINE_CATEGORIES
@@ -22,7 +22,10 @@ MATERIAL_FILE = "newsData.json"
 ROUTINE_FILE = "newsRoutine.json"
 
 # Bumped when the record shape changes, so a stale cached payload is detectable.
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
+
+# dsebd.org serves a rolling two-year news archive; older items are dropped.
+SOURCE_RETENTION_DAYS = 730
 
 
 def load_archive(public_dir: Path) -> tuple[list[dict], list[dict]]:
@@ -48,6 +51,15 @@ def save_archive(public_dir: Path, tickers: list[dict], items: list[dict]) -> di
     material = [i for i in ordered if i.get("Category") not in ROUTINE_CATEGORIES]
 
     dates = [i["Date"] for i in ordered]
+
+    # DSE's own archive is a rolling two-year window. Anything older than this
+    # boundary has been dropped from dsebd.org and now exists here and, as far
+    # as the public is concerned, nowhere else. It is the single fact that
+    # makes this archive worth keeping, so it is counted and published rather
+    # than left for a reader to infer.
+    source_floor = (datetime.now(timezone.utc) - timedelta(days=SOURCE_RETENTION_DAYS)).strftime("%Y-%m-%d")
+    beyond_source = [i for i in ordered if i["Date"] < source_floor]
+
     meta = {
         "schemaVersion": SCHEMA_VERSION,
         "generatedAt": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -56,6 +68,8 @@ def save_archive(public_dir: Path, tickers: list[dict], items: list[dict]) -> di
         "routineCount": len(routine),
         "earliestDate": min(dates) if dates else None,
         "latestDate": max(dates) if dates else None,
+        "sourceFloorDate": source_floor,
+        "beyondSourceCount": len(beyond_source),
     }
 
     _write_json(public_dir / MATERIAL_FILE, {

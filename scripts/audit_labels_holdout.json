@@ -1,0 +1,556 @@
+{
+  "note": "Held-out validation set. Drawn with a different seed AFTER rules were tuned on audit_labels.json, and excluding every record used there. This is the only reportable accuracy figure.",
+  "seed": 77315,
+  "records": [
+    {
+      "id": 33,
+      "ticker": "AOL",
+      "date": "2026-04-08",
+      "title": "AOL: Auditor's report regarding status of IPO Proceeds utilization",
+      "text": "Associated Oxygen Limited submitted auditor's report regarding status of IPO (Initial Public Offering) Proceeds utilization statement for the month of February 28, 2026. To view the details, please visit: https://www.dsebd.org/Auditors_opinion/Associated%20Oxygen_2026.pdf",
+      "predicted_category": "Capital_Structure",
+      "predicted_routine": false,
+      "true_category": "Capital_Structure"
+    },
+    {
+      "id": 143,
+      "ticker": "CITYBANK",
+      "date": "2026-04-02",
+      "title": "CITYBANK: Board Meeting schedule under LR 19(1)",
+      "text": "As per Regulation 19(1) of the Dhaka Stock Exchange (Listing) Regulations, 2015, the Company has informed that a meeting of the Board of Directors will be held on April 09, 2026 at 3:00 PM to consider, among others, audited financial statements of the Company for the year ended December 31, 2025.",
+      "predicted_category": "Meeting_Schedule",
+      "predicted_routine": true,
+      "true_category": "Meeting_Schedule"
+    },
+    {
+      "id": 1017,
+      "ticker": "RANFOUNDRY",
+      "date": "2026-02-24",
+      "title": "RANFOUNDRY: Credit Rating Result",
+      "text": "Credit Rating Information and Services PLC (CRISL) has assigned rating of the Company as \"AA-\" in the long term and \"ST-3\" in the short term along with Stable outlook in consideration of its audited financials up to June 30, 2025 also unaudited financials up to December 31, 2025 and other relevant quantitative as well as qualitative information up to the date of rating declaration.",
+      "predicted_category": "Operations_Growth",
+      "predicted_routine": false,
+      "true_category": "Operations_Growth"
+    },
+    {
+      "id": 1813,
+      "ticker": "AIBL1STIMF",
+      "date": "2026-01-29",
+      "title": "AIBL1STIMF: Daily NAV",
+      "text": "On the close of operation on January 28, 2026, the Fund has reported Net Asset Value (NAV) of Tk. 8.97 per unit on the basis of current market price and Tk. 11.29 per unit on the basis of cost price against face value of Tk. 10.00, whereas total Net Assets of the Fund stood at Tk. 896,705,125.00 on the basis of current market price and Tk. 1,128,817,578.00 on the basis of cost price after consider",
+      "predicted_category": "Fund_NAV",
+      "predicted_routine": true,
+      "true_category": "Fund_NAV"
+    },
+    {
+      "id": 3293,
+      "ticker": "FIRSTSBANK",
+      "date": "2025-12-24",
+      "title": "FIRSTSBANK: Reduction of entire Paid-up Capital to 0 by Order of Bangladesh Bank",
+      "text": "(Cont. news of FIRSTSBANK): stock exchanges or any other person shall be required for the validity of this order, pursuant to Section 33(2) of the Ordinance. C. The Administrator shall take all necessary steps to ensure that the bank's statutory records reflect this capital reduction and cancellation of shares, including filling with the Registrar of Joint Stock Companies and Firms (RJSC) and rele",
+      "predicted_category": "Capital_Structure",
+      "predicted_routine": false,
+      "true_category": "Distress_Bankruptcy"
+    },
+    {
+      "id": 3403,
+      "ticker": "EASTERNINS",
+      "date": "2025-12-23",
+      "title": "EASTERNINS: Credit Rating Result",
+      "text": "National Credit Ratings Limited (NCR) has assigned the surveillance entity rating of the Company as \"AAA\" in the long term and \"ST-1\" in the short term along with Developing outlook based on audited financial statements as on December 31, 2024 and other relevant quantitative as well as qualitative information up to the date of rating declaration.",
+      "predicted_category": "Operations_Growth",
+      "predicted_routine": false,
+      "true_category": "Operations_Growth"
+    },
+    {
+      "id": 3661,
+      "ticker": "NURANI",
+      "date": "2025-12-17",
+      "title": "NURANI: Inspection of the factory premises of Nurani Dyeing & Sweater Limited",
+      "text": "A team of DSE visited the factory premises of Nurani Dyeing & Sweater Limited on July 21, 2025 and found the operation/production closed.",
+      "predicted_category": "Regulatory_Legal",
+      "predicted_routine": false,
+      "true_category": "Regulatory_Legal"
+    },
+    {
+      "id": 4111,
+      "ticker": "LRGLOBMF1",
+      "date": "2025-12-04",
+      "title": "LRGLOBMF1: Daily NAV",
+      "text": "On the close of operation on December 03, 2025, the Fund has reported Net Asset Value (NAV) of Tk. 8.47 per unit on the basis of current market price and Tk. 11.00 per unit on the basis of cost price against face value of Tk. 10.00 whereas total Net Assets of the Fund stood at Tk. 2,633,583,208.00 on the basis of current market price and Tk. 3,422,446,693.00 on the basis of cost price after consid",
+      "predicted_category": "Fund_NAV",
+      "predicted_routine": true,
+      "true_category": "Fund_NAV"
+    },
+    {
+      "id": 4134,
+      "ticker": "NURANI",
+      "date": "2025-12-04",
+      "title": "NURANI: Inspection of the factory premises of Nurani Dyeing & Sweater Limited",
+      "text": "A team of DSE visited the factory premises of Nurani Dyeing & Sweater Limited on July 21, 2025 and found the operation/production closed.",
+      "predicted_category": "Regulatory_Legal",
+      "predicted_routine": false,
+      "true_category": "Regulatory_Legal"
+    },
+    {
+      "id": 4717,
+      "ticker": "EPGL",
+      "date": "2025-11-23",
+      "title": "EPGL: Asset Sale Proposal",
+      "text": "The Board of Directors has recommended and same forwarded in general shareholders meeting for approval to sale 16.50 decimal (10 Katha) of land situated at 430, Energy Point, Teigaon New I/A, Dhaka in favor of Energypac Fashion Limited.",
+      "predicted_category": "Restructuring_Ownership",
+      "predicted_routine": false,
+      "true_category": "Asset_Events"
+    },
+    {
+      "id": 5329,
+      "ticker": "BDAUTOCA",
+      "date": "2025-11-13",
+      "title": "BDAUTOCA: Company to hold EGM for decision on convertible Preference Share",
+      "text": "(Cont. news of BDAUTOCA): on a private placement basis (Mr. Mohammad Murad, Honorable Chairman of the Company, at such issue price of Tk. 10/- each, dividend rate (5% p.a.), tenure for 2 years. The further details of this convertible Preference Share offer shall be published in the EGM Notice soon. (end)",
+      "predicted_category": "Capital_Structure",
+      "predicted_routine": false,
+      "true_category": "Capital_Structure"
+    },
+    {
+      "id": 5933,
+      "ticker": "MTB",
+      "date": "2025-10-30",
+      "title": "MTB: Board approved the proposal for purchasing 1 Bigha (20 Katha) plot",
+      "text": "(cont. news of MTB): The Board also approved cancellation of the earlier approval against purchasing 15 floors of a newly constructed 21 storied commercial building \"The Cube\", located at Plot No. 01, Road No. 138, Gulshan-1, Dhaka. (end)",
+      "predicted_category": "Asset_Events",
+      "predicted_routine": false,
+      "true_category": "Asset_Events"
+    },
+    {
+      "id": 6101,
+      "ticker": "PLFSL",
+      "date": "2025-10-29",
+      "title": "PLFSL: Implementation of Revised Tick Size for Equity Securities Below BDT 1",
+      "text": "(Continuation news of PLFSL): from October 29, 2025, in accordance with Regulation 18 of the Dhaka Stock Exchange Automated Trading Regulations, 1999, to ensure smoother price discovery and improved market efficiency. (end)",
+      "predicted_category": "General",
+      "predicted_routine": false,
+      "true_category": "Regulatory_Legal"
+    },
+    {
+      "id": 6156,
+      "ticker": "PENINSULA",
+      "date": "2025-10-28",
+      "title": "PENINSULA: Price Limit Open",
+      "text": "There will be no price limit on the trading of the shares of the Company today (28.10.2025) following its corporate declaration.",
+      "predicted_category": "Trading_Status",
+      "predicted_routine": true,
+      "true_category": "Trading_Status"
+    },
+    {
+      "id": 6417,
+      "ticker": "LRGLOBMF1",
+      "date": "2025-10-23",
+      "title": "LRGLOBMF1: No Debit Transaction of the Mutual Funds managed by LR Global",
+      "text": "(cont. news of LRGLOBMF1): Banks and Stock Brokerage Houses where accounts of the above mentioned Funds are maintained to immediately stop all debit transactions including online debit Banking transactions and also to immediately stop all trading activities (buy/sell) respectively by LR Global Bangladesh Asset Management Company Ltd.\" (end)",
+      "predicted_category": "General",
+      "predicted_routine": false,
+      "true_category": "Regulatory_Legal"
+    },
+    {
+      "id": 7181,
+      "ticker": "RSRMSTEEL",
+      "date": "2025-09-24",
+      "title": "RSRMSTEEL: Inspection of the factory premises of the company",
+      "text": "A team of DSE visited the factory premises of Ratanpur Steel Re-Rolling Mills Limited on July 20, 2025 and found the operation/production closed.",
+      "predicted_category": "Regulatory_Legal",
+      "predicted_routine": false,
+      "true_category": "Regulatory_Legal"
+    },
+    {
+      "id": 7195,
+      "ticker": "NURANI",
+      "date": "2025-09-23",
+      "title": "NURANI: Inspection of the factory premises of Nurani Dyeing & Sweater Limited",
+      "text": "A team of DSE visited the factory premises of Nurani Dyeing & Sweater Limited on July 21, 2025 and found the operation/production closed.",
+      "predicted_category": "Regulatory_Legal",
+      "predicted_routine": false,
+      "true_category": "Regulatory_Legal"
+    },
+    {
+      "id": 7210,
+      "ticker": "ZAHEENSPIN",
+      "date": "2025-09-22",
+      "title": "ZAHEENSPIN: Category Change",
+      "text": "The Company has been placed in 'Z' category from existing 'B' category with effect from today, i.e., 22.09.2025 according to provision 1(c) of BSEC Directive No. BSEC/CMRRCD/2009-193/77 dated May 20, 2024 since the company is not in production/operation continuously for a period of minimum 6 (six) months.",
+      "predicted_category": "Regulatory_Legal",
+      "predicted_routine": false,
+      "true_category": "Regulatory_Legal"
+    },
+    {
+      "id": 7701,
+      "ticker": "SHAHJABANK",
+      "date": "2025-08-25",
+      "title": "SHAHJABANK: Sell Intention",
+      "text": "Mr. Akkas Uddin Mollah, one of the Sponsors of the Company, has reported his intention to sell 2,10,25,364 shares out of his holding of 2,23,07,124 shares of the Company at prevailing market price (In the Block Market) through Chittagong Stock Exchange PLC (CSE) within next 30 working days.",
+      "predicted_category": "General",
+      "predicted_routine": false,
+      "true_category": "Restructuring_Ownership"
+    },
+    {
+      "id": 7764,
+      "ticker": "CVOPRL",
+      "date": "2025-08-24",
+      "title": "CVOPRL: Revaluation of Land and Land Development",
+      "text": "(cont. news of CVOPRL): (Description - Land and Land Development): Land Area (Decimal) - 95.90; Fair Value at present rate as on 30 June 2025 (BDT) - 575,400,000.00; Value as per Financial Statements as on 30 June 2025 (BDT) - 14,647,500.00, and Valuation Surplus as on 30 June 2025 (BDT) - 560,752,500.00. (end)",
+      "predicted_category": "Asset_Events",
+      "predicted_routine": false,
+      "true_category": "Asset_Events"
+    },
+    {
+      "id": 8070,
+      "ticker": "MLDYEING",
+      "date": "2025-08-04",
+      "title": "MLDYEING: Credit Rating Result",
+      "text": "Emerging Credit Rating Ltd. (ECRL) has affirmed surveillance rating of the Company as \"A-\" in the long term and \"ST-2\" in the short term along with a Stable outlook based on audited financial statements up to June 30, 2024, quarterly unaudited financial statement upto March 31, 2025 and other relevant quantitative as well as qualitative information up to the date of rating.",
+      "predicted_category": "Operations_Growth",
+      "predicted_routine": false,
+      "true_category": "Operations_Growth"
+    },
+    {
+      "id": 8378,
+      "ticker": "ICB3RDNRB",
+      "date": "2025-07-27",
+      "title": "ICB3RDNRB: Weekly NAV",
+      "text": "On the close of operation on 23-Jul-2025, the Fund has reported Net Asset Value (NAV) of Tk. 7.85 per unit on the basis of current market price and Tk. 12.49 per unit on the basis of cost price against face value of Tk. 10.00 whereas total Net Assets of the Fund stood at Tk. 785,486,115.58 on the basis of current market price and Tk. 1,248,698,213.56 on the basis of cost price after considering al",
+      "predicted_category": "Fund_NAV",
+      "predicted_routine": true,
+      "true_category": "Fund_NAV"
+    },
+    {
+      "id": 8894,
+      "ticker": "ACMEPL",
+      "date": "2025-07-02",
+      "title": "ACMEPL: Auditor's report regarding status of IPO Proceeds utilization",
+      "text": "ACME Pesticides Limited submitted auditor's report regarding status of IPO (Initial Public Offering) Proceeds utilization statement for the month of May 31, 2025. To view the details, please visit: https://www.dsebd.org/Auditors_opinion/2025/ACMEPesticidesLimited2025.pdf",
+      "predicted_category": "Capital_Structure",
+      "predicted_routine": false,
+      "true_category": "Capital_Structure"
+    },
+    {
+      "id": 9052,
+      "ticker": "ONEBANKPLC",
+      "date": "2025-06-26",
+      "title": "ONEBANKPLC: Board approval to issue Subordinated Bond VI for Tier-II Capital",
+      "text": "(Cont. News of ONEBANKPLC):  Use of Proceeds: The proceeds will be raised as Tier-II Capital through issuance of ONE Bank Subordinated Bond VI in order to strengthen its Capital base in accordance with Bangladesh Bank's Guidelines on Risk Based Capital Adequacy (Revised Regulatory Capital Framework in line with Basel III). (end)",
+      "predicted_category": "Capital_Structure",
+      "predicted_routine": false,
+      "true_category": "Capital_Structure"
+    },
+    {
+      "id": 9203,
+      "ticker": "UNIONINS",
+      "date": "2025-06-19",
+      "title": "UNIONINS: Qualified Opinion and Emphasis of Matter",
+      "text": "The auditor of the company has given the \"Qualified Opinion\" and \"Emphasis of Matter\" paragraphs in the Auditor's Report of the company for the year ended December 31, 2024. To view the details, please visit: https://www.dsebd.org/Auditors_opinion/2024/UNIONINS_2024.pdf",
+      "predicted_category": "Distress_Bankruptcy",
+      "predicted_routine": false,
+      "true_category": "Distress_Bankruptcy"
+    },
+    {
+      "id": 9261,
+      "ticker": "CAPITECGBF",
+      "date": "2025-06-15",
+      "title": "CAPITECGBF: Weekly NAV",
+      "text": "On the close of operation on 04-June-2025, the Fund has reported Net Asset Value (NAV) of Tk. 09.16 per unit on the basis of current market price and Tk. 10.82 per unit on the basis of cost price against face value of Tk. 10.00 whereas total Net Assets of the Fund stood at Tk. 1,426,286,888.69 on the basis of current market price and Tk. 1,683,918,029.54 on the basis of cost price after considerin",
+      "predicted_category": "Fund_NAV",
+      "predicted_routine": true,
+      "true_category": "Fund_NAV"
+    },
+    {
+      "id": 9346,
+      "ticker": "EASTERNINS",
+      "date": "2025-06-03",
+      "title": "EASTERNINS: Qualified Opinion, Emphasis of Matter and Other Matter",
+      "text": "The auditor of the company has given the \"Qualified Opinion\", \"Emphasis of Matter\" and \"Other Matter\" paragraphs in the Auditor's Report of the company for the year ended December 31, 2024. To view the details, please visit: https://www.dsebd.org/Auditors_opinion/2024/EasternInsuranceCompanyLimited-2024.pdf",
+      "predicted_category": "Distress_Bankruptcy",
+      "predicted_routine": false,
+      "true_category": "Distress_Bankruptcy"
+    },
+    {
+      "id": 9797,
+      "ticker": "STANDARINS",
+      "date": "2025-05-19",
+      "title": "STANDARINS: Emphasis of Matters",
+      "text": "The auditor of the company has given the \"Emphasis of Matters\" paragraph in the Auditor's Report of the company for the year ended December 31, 2024. To view the details, please visit: https://www.dsebd.org/Auditors_opinion/2024/STANDARDINS_2024.pdf",
+      "predicted_category": "Distress_Bankruptcy",
+      "predicted_routine": false,
+      "true_category": "Distress_Bankruptcy"
+    },
+    {
+      "id": 10400,
+      "ticker": "UCB",
+      "date": "2025-04-29",
+      "title": "UCB: Reschedule of Board Meeting under LR 19(1)",
+      "text": "The Company has further informed that the meeting of the Board of Directors of the Company as per Regulation 19(1) of the Dhaka Stock Exchange (Listing) Regulations, 2015, will be held on April 30, 2025 at 3:00 PM instead of earlier declared April 29, 2025 to consider, among others, audited financial statements of the Company for the year ended December 31, 2024.",
+      "predicted_category": "Meeting_Schedule",
+      "predicted_routine": true,
+      "true_category": "Meeting_Schedule"
+    },
+    {
+      "id": 11080,
+      "ticker": "GREENDELT",
+      "date": "2025-04-13",
+      "title": "GREENDELT: Sale and Buy Confirmations of Sponsors",
+      "text": "Mr. M Muhibur Rahman, a Sponsor of the Company, has completed selling of his entire holding of 5,93,675 shares whereas Mr. Ajam J Chowdhury, another Sponsor of the company, has completed his buying of 5,93,675 shares at prevailing market price through Dhaka Stock Exchange PLC. as per declaration disseminated on 17.03.2025.",
+      "predicted_category": "Restructuring_Ownership",
+      "predicted_routine": false,
+      "true_category": "Restructuring_Ownership"
+    },
+    {
+      "id": 11137,
+      "ticker": "CLICL",
+      "date": "2025-04-08",
+      "title": "CLICL: Appointment of Chief Executive Officer (Acting)",
+      "text": "The company has informed that according to the Board of Directors decision Additional Managing Director Mr. Mohammed Amdad Ullah will take charge as Chief Executive Officer (Acting) until new CEO appointed.",
+      "predicted_category": "Restructuring_Ownership",
+      "predicted_routine": false,
+      "true_category": "Restructuring_Ownership"
+    },
+    {
+      "id": 11478,
+      "ticker": "JMISMDL",
+      "date": "2025-03-04",
+      "title": "JMISMDL: Regarding revaluation of Property, Plant and Equipment of the company",
+      "text": "The company has informed that the Board of Directors has approved the Revaluation of Property, Plant and Equipment (Land & Factory Buildings) based on December 31, 2024. To view the details, please visit: https://www.dsebd.org/Annexure/2024/JMISYRINGES_2024.pdf",
+      "predicted_category": "Asset_Events",
+      "predicted_routine": false,
+      "true_category": "Asset_Events"
+    },
+    {
+      "id": 12310,
+      "ticker": "ARGONDENIM",
+      "date": "2025-01-27",
+      "title": "ARGONDENIM: Dividend Disbursement",
+      "text": "The Company has informed that it has disbursed the Cash Dividend for the year ended June 30, 2024 to the respective shareholders.",
+      "predicted_category": "Dividends_Earnings",
+      "predicted_routine": false,
+      "true_category": "Dividends_Earnings"
+    },
+    {
+      "id": 12675,
+      "ticker": "POWERGRID",
+      "date": "2025-01-19",
+      "title": "POWERGRID: Price Limit Open",
+      "text": "There will be no price limit on the trading of the shares of the Company today (19.01.2025) following its corporate declaration.",
+      "predicted_category": "Trading_Status",
+      "predicted_routine": true,
+      "true_category": "Trading_Status"
+    },
+    {
+      "id": 12977,
+      "ticker": "ORIONINFU",
+      "date": "2024-12-26",
+      "title": "ORIONINFU: Credit Rating Result",
+      "text": "Credit Rating Agency of Bangladesh Limited (CRAB) has announced the surveillance entity rating of the Company as \"A3\", long term rating is not applicable and \"ST-3\" in the short term along with Stable outlook based on audited financial statements (FYE 30/06/ 2024, 30/06/2023, 30/06/2022), bank liability as on 30/11/ 2024 and other information up to the date of rating declaration.",
+      "predicted_category": "Operations_Growth",
+      "predicted_routine": false,
+      "true_category": "Operations_Growth"
+    },
+    {
+      "id": 13111,
+      "ticker": "PLFSL",
+      "date": "2024-12-18",
+      "title": "PLFSL: Suspension for Record Date",
+      "text": "Trading of the shares of the company will remain suspended on record date i.e., 19.12.2024.",
+      "predicted_category": "Trading_Status",
+      "predicted_routine": true,
+      "true_category": "Trading_Status"
+    },
+    {
+      "id": 13208,
+      "ticker": "SJIBLPBOND",
+      "date": "2024-12-12",
+      "title": "SJIBLPBOND: Trustee Meeting to declare Record Date",
+      "text": "Shahjalal Islami Bank PLC., the Issuer of SJIBL Mudaraba Perpetual Bond has informed that a meeting of the Trustee of SJIBL Mudaraba Perpetual Bond will be held on December 23, 2024 at 3:00 PM for fixation of Annual Profit Rate for period from January 01, 2025 to December 31, 2025.",
+      "predicted_category": "General",
+      "predicted_routine": false,
+      "true_category": "Meeting_Schedule"
+    },
+    {
+      "id": 14261,
+      "ticker": "FINEFOODS",
+      "date": "2024-11-14",
+      "title": "FINEFOODS: Reschedule of Board Meeting under LR 16(1)",
+      "text": "The Company has further informed that due to unavoidable circumstances the meeting of the Board of Directors of the Company as per Regulation 16(1) of the Dhaka Stock Exchange (Listing) Regulations, 2015, will be held on November 20, 2024 at 4:05 PM instead of November 14, 2024 at 4:10 PM to consider, among others, un-audited financial statements of the Company for the First Quarter (Q1) period en",
+      "predicted_category": "Meeting_Schedule",
+      "predicted_routine": true,
+      "true_category": "Meeting_Schedule"
+    },
+    {
+      "id": 14615,
+      "ticker": "MONNOCERA",
+      "date": "2024-11-10",
+      "title": "MONNOCERA: Price Limit Open",
+      "text": "There will be no price limit on the trading of the shares of the Company today (10.11.2024) following its corporate declaration.",
+      "predicted_category": "Trading_Status",
+      "predicted_routine": true,
+      "true_category": "Trading_Status"
+    },
+    {
+      "id": 14870,
+      "ticker": "1JANATAMF",
+      "date": "2024-10-31",
+      "title": "1JANATAMF: Qualified Opinion and Emphasis of Matters",
+      "text": "The auditor of the First Janata Bank Mutual Fund has given the \"Qualified Opinion\" and \"Emphasis of Matters\" paragraphs in the Auditor's Report of the Fund for the year ended June 30, 2024. To view the details, please visit: https://www.dsebd.org/Auditors_opinion/2024/October/1JANATAMF_2024.pdf",
+      "predicted_category": "Distress_Bankruptcy",
+      "predicted_routine": false,
+      "true_category": "Distress_Bankruptcy"
+    },
+    {
+      "id": 14984,
+      "ticker": "FIRSTFIN",
+      "date": "2024-10-30",
+      "title": "FIRSTFIN: Q3 Financials",
+      "text": "(Q3 Un-audited): EPS was Tk. (1.21) for July-September 2024 as against Tk. (0.87) for July-September 2023; EPS was Tk. (4.13) for January-September 2024 as against Tk. (3.49) for January-September 2023. NOCFPS was Tk. (0.79) for January-September 2024 as against Tk. 0.72 for January-September 2023. NAV per share was Tk. (35.84) as on September 30, 2024 and Tk. (31.86) as on September 30, 2023.",
+      "predicted_category": "Dividends_Earnings",
+      "predicted_routine": false,
+      "true_category": "Dividends_Earnings"
+    },
+    {
+      "id": 15998,
+      "ticker": "PRIMEBANK",
+      "date": "2024-10-02",
+      "title": "PRIMEBANK: Confirmation of Share Transfer by a Sponsor Director",
+      "text": "Mrs. Salma Huq, a Sponsor Director of the company, has further informed that she has completed her transfer of 7,500,000 shares to her daughter Ms. Sara Huq (a general shareholder of the company) by way of gift outside the trading system of the Exchange as per news disseminated by DSE on 26.09.2024.",
+      "predicted_category": "Restructuring_Ownership",
+      "predicted_routine": false,
+      "true_category": "Restructuring_Ownership"
+    },
+    {
+      "id": 16751,
+      "ticker": "IDLC",
+      "date": "2024-08-21",
+      "title": "IDLC: Dividend Disbursement",
+      "text": "The Company has informed that it has disbursed the Cash Dividend for the year ended December 31, 2023 to the respective shareholders.",
+      "predicted_category": "Dividends_Earnings",
+      "predicted_routine": false,
+      "true_category": "Dividends_Earnings"
+    },
+    {
+      "id": 16852,
+      "ticker": "SBACBANK",
+      "date": "2024-08-18",
+      "title": "SBACBANK: Sale declaration of a placement holder (ex-director)",
+      "text": "Thermax Textile Mills Ltd., one of the placement holders and ex-directors of SBAC Bank PLC., has expressed its intention to sell 34,821,563 shares out of its total holding of 35,169,778 shares of the Company at prevailing market price (In the Block Market) through Dhaka Stock Exchange PLC.",
+      "predicted_category": "Restructuring_Ownership",
+      "predicted_routine": false,
+      "true_category": "Restructuring_Ownership"
+    },
+    {
+      "id": 17214,
+      "ticker": "PADMALIFE",
+      "date": "2024-07-30",
+      "title": "PADMALIFE: Dividend Declaration",
+      "text": "The Board of Directors has recommended No dividend for the year ended December 31, 2023. Date of AGM: 29.09.2024, Time: 11:30 AM, Venue: Hybrid: Digital platform and Physical presence: Company?s Head Office, Padma Life Tower 115, Kazi Nazrul Islam Avenue, Banglamotor, Dhaka -1000. Record Date: 22.08.2024.",
+      "predicted_category": "Dividends_Earnings",
+      "predicted_routine": false,
+      "true_category": "Dividends_Earnings"
+    },
+    {
+      "id": 17302,
+      "ticker": "MIDLANDBNK",
+      "date": "2024-07-28",
+      "title": "MIDLANDBNK: Board Meeting schedule under LR 16(1)",
+      "text": "As per Regulation 16(1) of the Dhaka Stock Exchange (Listing) Regulations, 2015, the Company has informed that a meeting of the Board of Directors will be held on July 30, 2024 at 03:30 PM to consider, among others, un-audited financial statements of the Company for the Second Quarter (Q2) period ended June 30, 2024.",
+      "predicted_category": "Meeting_Schedule",
+      "predicted_routine": true,
+      "true_category": "Meeting_Schedule"
+    },
+    {
+      "id": 17506,
+      "ticker": "BAYLEASING",
+      "date": "2024-07-16",
+      "title": "BAYLEASING: Spot News",
+      "text": "Trading of the shares of the company will be allowed only in the Spot Market and Block transaction will also be settled as per spot settlement cycle from 18.07.2024 to 21.07.2024 and trading of the shares will remain suspended on record date i.e., 22.07.2024.",
+      "predicted_category": "Trading_Status",
+      "predicted_routine": true,
+      "true_category": "Trading_Status"
+    },
+    {
+      "id": 17836,
+      "ticker": "MEGHNAINS",
+      "date": "2024-06-25",
+      "title": "MEGHNAINS: Credit Rating Result",
+      "text": "National Credit Ratings Limited has assigned the surveillance entity rating of the Company as \"AA+\" in the long term and \"ST-2\" in the short term along with Stable outlook based on audited financial statements as on December 31, 2023.",
+      "predicted_category": "Operations_Growth",
+      "predicted_routine": false,
+      "true_category": "Operations_Growth"
+    },
+    {
+      "id": 19936,
+      "ticker": "PRIMELIFE",
+      "date": "2026-04-12",
+      "title": "PRIMELIFE: Valuation report as at 31st December 2023",
+      "text": "(Cont. news of PRIMELIFE): Balance of Life Insurance Fund as shown in the balance sheet as at 31st December 2023: 7,573,495,801/- as against 7,713,332,660/- as at 31st December 2022; Surplus (+)/Deficit (-) as at 31st December 2023: (-) 6,694,305,446/- as against (-)6,612,347,364/- as at 31st December 2022. (end)",
+      "predicted_category": "Asset_Events",
+      "predicted_routine": false,
+      "true_category": "Asset_Events"
+    },
+    {
+      "id": 20184,
+      "ticker": "IFIC1STMF",
+      "date": "2026-04-20",
+      "title": "IFIC1STMF: Daily NAV",
+      "text": "On the close of operation on April 19, 2026, the Fund has reported Net Asset Value (NAV) of Tk. 7.65 per unit on the basis of current market price and Tk. 11.68 per unit on the basis of cost price against a face value of Tk. 10.00, whereas the total Net Assets of the Fund stood at Tk. 1,392,961,724.00 on the basis of current market price and Tk. 2,127,411,678.00 on the basis of cost price after co",
+      "predicted_category": "Fund_NAV",
+      "predicted_routine": true,
+      "true_category": "Fund_NAV"
+    },
+    {
+      "id": 20741,
+      "ticker": "IPDC",
+      "date": "2026-04-29",
+      "title": "IPDC: Asset Revaluation",
+      "text": "(Cont. news of IPDC): The carrying value of Building before revaluation was Tk. 90,474,767 and the value after revaluation stands at Tk. 37,961,784. The total carrying value before revaluation was Tk. 369,909,800 and the total value after revaluation stands at Tk. 482,236,659. (end)",
+      "predicted_category": "Asset_Events",
+      "predicted_routine": false,
+      "true_category": "Asset_Events"
+    },
+    {
+      "id": 21328,
+      "ticker": "UTTARABANK",
+      "date": "2026-05-06",
+      "title": "UTTARABANK: Board Meeting schedule under LR 16(1)",
+      "text": "As per Regulation 16(1) of the Dhaka Stock Exchange (Listing) Regulations, 2015, the Company has informed that a meeting of the Board of Directors will be held on May 11, 2026 at 3:00 pm to consider, among others, Un-Audited Financial Statements for the First Quarter (Q1) period ended March 31, 2026.",
+      "predicted_category": "Meeting_Schedule",
+      "predicted_routine": true,
+      "true_category": "Meeting_Schedule"
+    },
+    {
+      "id": 21650,
+      "ticker": "RUPALIBANK",
+      "date": "2026-05-18",
+      "title": "RUPALIBANK: Q1 Financials",
+      "text": "(Cont. News of RUPALIBANK): Reasons of Deviation: Period to period EPS decreased due to decrease in total operating income and period to period NOCFPS increased due to increase of deposits. (end)",
+      "predicted_category": "Dividends_Earnings",
+      "predicted_routine": false,
+      "true_category": "Dividends_Earnings"
+    },
+    {
+      "id": 22069,
+      "ticker": "NITOLINS",
+      "date": "2026-06-02",
+      "title": "NITOLINS: Emphasis of Matter",
+      "text": "The auditor of the company has given the Emphasis of Matter paragraph in the auditor's report for the year ended December 31, 2025. To view the details, please visit: https://www.dsebd.org/Auditors_opinion/2025/221.%20Nitol%20Insurance%20Company%20PLC25.pdf",
+      "predicted_category": "Distress_Bankruptcy",
+      "predicted_routine": false,
+      "true_category": "Distress_Bankruptcy"
+    },
+    {
+      "id": 24080,
+      "ticker": "CBLPBOND",
+      "date": "2026-07-16",
+      "title": "CBLPBOND: Trustee Meeting to declare record date",
+      "text": "City Bank PLC., the Issuer of City Bank Perpetual Bond, has informed that a meeting of the Trustee of City Bank Perpetual Bond will be held on July 23, 2026 at 3:00 PM to declare Record Date for the coupon payment to be made on September 01, 2026.",
+      "predicted_category": "General",
+      "predicted_routine": false,
+      "true_category": "Meeting_Schedule"
+    }
+  ]
+}
