@@ -91,6 +91,18 @@ body {
   transition: transform 0.3s ease;
 }
 
+.sidebar-backdrop {
+  display: none;
+}
+
+.mobile-menu-btn {
+  display: none;
+}
+
+.sidebar-apply {
+  display: none;
+}
+
 .main-content {
   flex: 1;
   display: flex;
@@ -112,6 +124,8 @@ body {
 .content-area {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
+  min-width: 0;
   padding: 24px;
 }
 
@@ -215,8 +229,12 @@ input:focus, select:focus {
 /* News List */
 .news-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  /* min(350px, 100%) rather than a bare 350px: on a screen narrower than the
+     track minimum, a fixed 350px floor makes the grid wider than its own
+     container and pushes the page sideways. */
+  grid-template-columns: repeat(auto-fill, minmax(min(350px, 100%), 1fr));
   gap: 20px;
+  min-width: 0;
 }
 
 .news-card {
@@ -225,6 +243,10 @@ input:focus, select:focus {
   flex-direction: column;
   gap: 16px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  /* A grid item's automatic minimum size is its min-content width. An
+     announcement containing a long unbroken URL therefore forces its track —
+     and every sibling track — far wider than the viewport. */
+  min-width: 0;
 }
 
 .news-card:hover {
@@ -237,6 +259,8 @@ input:focus, select:focus {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
 }
 
 .news-ticker {
@@ -246,6 +270,8 @@ input:focus, select:focus {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .news-date {
@@ -274,6 +300,7 @@ input:focus, select:focus {
   font-weight: 600;
   line-height: 1.4;
   color: var(--text-primary);
+  overflow-wrap: anywhere;
 }
 
 .news-text {
@@ -281,6 +308,7 @@ input:focus, select:focus {
   color: var(--text-secondary);
   line-height: 1.6;
   flex: 1;
+  overflow-wrap: anywhere;
 }
 
 .news-footer {
@@ -322,7 +350,7 @@ input:focus, select:focus {
 
 .news-list-row {
   display: grid;
-  grid-template-columns: 110px 1fr auto;
+  grid-template-columns: 110px minmax(0, 1fr) auto;
   align-items: start;
   gap: 16px;
   padding: 14px 20px;
@@ -355,12 +383,14 @@ input:focus, select:focus {
   font-weight: 600;
   color: var(--text-primary);
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .news-list-text {
   font-size: 0.82rem;
   color: var(--text-secondary);
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .news-list-right {
@@ -403,4 +433,126 @@ input:focus, select:focus {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Responsive                                                              */
+/* ---------------------------------------------------------------------- */
+/* Below this, the fixed 320px sidebar plus 20px container padding leaves
+   less than half the screen for content — a two-column desktop layout does
+   not degrade gracefully, so mobile gets its own layout: the sidebar becomes
+   a full-height drawer opened by a button, and the main content takes the
+   full viewport. */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 0;
+    gap: 0;
+    height: 100dvh;
+    position: relative;
+  }
+
+  .sidebar {
+    position: fixed;
+    inset: 0;
+    width: min(85vw, 320px);
+    z-index: 100;
+    border-radius: 0;
+    transform: translateX(-100%);
+    padding: 20px;
+    /* The shared .animated-fade entrance runs with fill-mode: forwards, and
+       its final keyframe sets transform: translateY(0). A running animation
+       outranks normal declarations, so that keyframe would override the
+       drawer's off-screen transform and leave the sidebar permanently open. */
+    animation: none;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-backdrop.open {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: rgba(0, 0, 0, 0.55);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .sidebar-apply {
+    display: block;
+    width: 100%;
+    flex-shrink: 0;
+    background: var(--accent-blue);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 12px;
+    cursor: pointer;
+  }
+
+  .main-content {
+    gap: 0;
+    height: 100%;
+  }
+
+  .content-area {
+    padding: 12px;
+  }
+
+  .news-grid {
+    /* minmax(0, 1fr), not a bare 1fr: "1fr" is shorthand for minmax(auto, 1fr)
+       and that auto floor is min-content, which long URLs blow past. */
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .news-card {
+    padding: 16px;
+  }
+
+  .news-list-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    padding: 12px 14px;
+  }
+
+  .news-list-right {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-width: 0;
+    padding-top: 6px;
+    border-top: 1px solid var(--panel-border);
+  }
+}
+
+/* Very narrow phones (iPhone SE and similar) */
+@media (max-width: 380px) {
+  .content-area {
+    padding: 8px;
+  }
+
+  .news-card {
+    padding: 14px;
+  }
 }

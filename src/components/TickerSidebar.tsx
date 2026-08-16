@@ -1,31 +1,42 @@
 import { useState, useMemo } from 'react';
 import type { TickerInfo } from '../types';
-import { FiSearch, FiCode, FiLinkedin } from 'react-icons/fi';
+import { FiSearch, FiCode, FiLinkedin, FiX } from 'react-icons/fi';
 
 interface TickerSidebarProps {
   tickers: TickerInfo[];
   selectedTickers: string[];
   toggleTicker: (ticker: string) => void;
+  isOpen: boolean;
+  onClose: () => void;
+  resultCount: number;
 }
 
-const TickerSidebar = ({ tickers, selectedTickers, toggleTicker }: TickerSidebarProps) => {
+const TickerSidebar = ({ tickers, selectedTickers, toggleTicker, isOpen, onClose, resultCount }: TickerSidebarProps) => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredTickers = useMemo(() => {
-    return tickers.filter(t => 
+    return tickers.filter(t =>
       t.ticker.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.industry.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [tickers, searchQuery]);
 
   return (
-    <div className="sidebar glass-panel animated-fade" style={{animationDelay: '0.1s'}}>
+    <div className={`sidebar glass-panel animated-fade ${isOpen ? 'open' : ''}`} style={{animationDelay: '0.1s'}}>
       <h2 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         <FiCode size={24} className="text-gradient" />
         <span className="text-gradient">Tickers</span>
         <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginLeft: 'auto' }}>
           ({selectedTickers.length}/{tickers.length})
         </span>
+        <button
+          onClick={onClose}
+          className="mobile-menu-btn"
+          aria-label="Close ticker list"
+          style={{ marginLeft: '4px' }}
+        >
+          <FiX size={18} />
+        </button>
       </h2>
       
       <div style={{ position: 'relative' }}>
@@ -68,6 +79,13 @@ const TickerSidebar = ({ tickers, selectedTickers, toggleTicker }: TickerSidebar
           </div>
         ))}
       </div>
+
+      {/* Mobile only: the feed is hidden behind the drawer, so selecting a
+          ticker gives no visible feedback without a way back to the results.
+          A button rather than auto-closing on tap, so multi-select still works. */}
+      <button className="sidebar-apply" onClick={onClose}>
+        Show {resultCount.toLocaleString()} results
+      </button>
 
       {/* Credit */}
       <a

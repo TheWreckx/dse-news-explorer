@@ -36,6 +36,7 @@ function App() {
 
   const [freshness, setFreshness] = useState<Freshness | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     // Written by the scraper workflow on every successful run. Absent on the
@@ -115,10 +116,19 @@ function App() {
 
   return (
     <div className="app-container">
+      <div
+        className={`sidebar-backdrop ${sidebarOpen ? 'open' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+        aria-hidden="true"
+      />
+
       <TickerSidebar
         tickers={tickers}
         selectedTickers={view.tickers}
         toggleTicker={toggleTicker}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        resultCount={filteredNews.length}
       />
 
       <main className="main-content">
@@ -143,6 +153,7 @@ function App() {
           freshness={freshness}
           meta={meta}
           onReset={reset}
+          onOpenSidebar={() => setSidebarOpen(true)}
         />
 
         <ArchiveBadge

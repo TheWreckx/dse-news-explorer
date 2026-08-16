@@ -1,4 +1,4 @@
-import { FiFilter, FiClock, FiGrid, FiList, FiDownload, FiCalendar, FiSearch, FiX } from 'react-icons/fi';
+import { FiFilter, FiClock, FiGrid, FiList, FiDownload, FiCalendar, FiSearch, FiX, FiMenu } from 'react-icons/fi';
 import * as XLSX from 'xlsx';
 import type { ArchiveMeta, Freshness, NewsItem } from '../types';
 import DseLogo from './DseLogo';
@@ -24,6 +24,7 @@ interface FilterHeaderProps {
   freshness: Freshness | null;
   meta: ArchiveMeta | null;
   onReset: () => void;
+  onOpenSidebar: () => void;
 }
 
 const selectStyle: React.CSSProperties = {
@@ -73,6 +74,7 @@ const FilterHeader = ({
   freshness,
   meta,
   onReset,
+  onOpenSidebar,
 }: FilterHeaderProps) => {
   const today = new Date().toISOString().split('T')[0];
   const earliest = meta?.earliestDate ?? '2024-01-01';
@@ -113,7 +115,15 @@ const FilterHeader = ({
       style={{ animationDelay: '0.2s', padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: '10px', flexShrink: 0 }}
     >
       {/* ── Row 1: Logo | Search | Controls ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', rowGap: '10px' }}>
+
+        <button
+          onClick={onOpenSidebar}
+          className="mobile-menu-btn"
+          aria-label="Open ticker list"
+        >
+          <FiMenu size={18} />
+        </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingRight: '14px', borderRight: '1px solid var(--panel-border)', flexShrink: 0 }}>
           <DseLogo size={28} />
@@ -123,7 +133,7 @@ const FilterHeader = ({
         </div>
 
         {/* Search — the primary way into 22,000 records */}
-        <div style={{ position: 'relative', flex: '1 1 320px', minWidth: 0, maxWidth: '520px' }}>
+        <div style={{ position: 'relative', flex: '1 1 260px', minWidth: 0, maxWidth: '520px' }}>
           <FiSearch
             size={13}
             aria-hidden="true"
