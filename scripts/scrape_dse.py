@@ -4,18 +4,27 @@ DSE News Scraper
 Fetches real news from Dhaka Stock Exchange (dsebd.org) and updates newsData.json.
 
 Usage:
-  python scripts/scrape_dse.py           # fetch last 7 days
-  python scripts/scrape_dse.py --full    # fetch last 180 days (initial sync)
+  python scripts/scrape_dse.py           # catch up from the newest stored item
+  python scripts/scrape_dse.py --full    # re-scan DSE's entire 2-year archive
+  python scripts/scrape_dse.py --trim    # also drop stored items over 2 years old
 """
 
 import json
+import os
 import re
+import socket
+import ssl
 import sys
+import tempfile
 import time
+import urllib.request
+import certifi
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 from pathlib import Path
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 # ---------------------------------------------------------------------------
 # Category taxonomy for keyword classification
@@ -134,6 +143,85 @@ HEADERS = {
     "Referer": "https://www.dsebd.org/",
 }
 
+DSE_HOST = "www.dsebd.org"
+
+# Largest window to request in a single call. DSE serves the whole range in one
+# HTML page, so very wide ranges produce multi-MB responses and time out.
+CHUNK_DAYS = 30
+
+# Overlap re-fetched on every run so an item posted late (after that day's run)
+# is still picked up. Deduplication makes the overlap harmless.
+OVERLAP_DAYS = 3
+
+# DSE's own news archive only goes back two years — its date picker enforces a
+# rolling min date. Requests older than this return nothing.
+ARCHIVE_LIMIT_DAYS = 730
+
+# ---------------------------------------------------------------------------
+# TLS: dsebd.org serves an incomplete certificate chain
+# ---------------------------------------------------------------------------
+# The server sends only its leaf certificate and omits the Sectigo intermediate.
+# Browsers paper over this by caching intermediates; Python's requests does not,
+# so every call fails with CERTIFICATE_VERIFY_FAILED. Rather than disabling
+# verification, fetch the missing intermediate from the URL the leaf certificate
+# itself advertises (Authority Information Access) and append it to the trusted
+# bundle. Certificate verification stays fully enabled.
+
+def _leaf_certificate_der(host: str, port: int = 443) -> bytes:
+    context = ssl.create_default_context()
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
+    with socket.create_connection((host, port), timeout=20) as sock:
+        with context.wrap_socket(sock, server_hostname=host) as tls:
+            return tls.getpeercert(binary_form=True)
+
+
+def build_ca_bundle(host: str = DSE_HOST) -> str:
+    """Return a path to certifi's bundle plus the host's missing intermediates."""
+    der = _leaf_certificate_der(host)
+    issuer_urls = re.findall(rb"http://[\w./~%-]+\.crt", der)
+
+    intermediates = []
+    for raw_url in dict.fromkeys(issuer_urls):
+        url = raw_url.decode()
+        try:
+            der_bytes = urllib.request.urlopen(url, timeout=20).read()
+            intermediates.append(ssl.DER_cert_to_PEM_cert(der_bytes))
+            print(f"  Fetched missing intermediate certificate: {url}")
+        except Exception as exc:
+            print(f"  Could not fetch intermediate {url}: {exc}")
+
+    bundle_path = os.path.join(tempfile.mkdtemp(prefix="dse-ca-"), "ca-bundle.pem")
+    with open(bundle_path, "w", encoding="utf-8") as f:
+        f.write(certifi.contents())
+        for pem in intermediates:
+            f.write("\n" + pem)
+    return bundle_path
+
+
+def make_session() -> requests.Session:
+    """Session with the repaired CA bundle and retries on transient failures."""
+    session = requests.Session()
+    session.headers.update(HEADERS)
+    try:
+        session.verify = build_ca_bundle()
+    except Exception as exc:
+        print(f"  CA bundle repair failed ({exc}) — falling back to system trust store")
+
+    retry = Retry(
+        total=4,
+        backoff_factor=1.5,
+        status_forcelist=(429, 500, 502, 503, 504),
+        allowed_methods=("GET", "POST"),
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+    return session
+
+
+SESSION = make_session()
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -245,38 +333,46 @@ def parse_news_table(html: str, default_ticker: str | None = None) -> list[dict]
 # Fetchers
 # ---------------------------------------------------------------------------
 
-def fetch_by_date_range(start_date: str, end_date: str) -> list[dict]:
-    """Try the AJAX date-range endpoint (no ticker filter)."""
-    url = "https://www.dsebd.org/ajax/load-news.php"
-    data = {
-        "criteria": "4",
-        "startDate": start_date,
-        "endDate": end_date,
-    }
-    try:
-        resp = requests.post(url, data=data, headers=HEADERS, timeout=30)
-        resp.raise_for_status()
-        items = parse_news_table(resp.text)
-        if items:
-            print(f"  Date-range fetch returned {len(items)} items")
-            return items
-    except Exception as exc:
-        print(f"  Date-range AJAX failed: {exc}")
-
-    # Fallback: GET request with query params
-    get_url = (
+def fetch_window(start_date: str, end_date: str) -> list[dict]:
+    """Fetch every announcement posted between two dates (inclusive)."""
+    url = (
         f"https://www.dsebd.org/old_news.php"
         f"?criteria=4&startDate={start_date}&endDate={end_date}&archive=news"
     )
     try:
-        resp = requests.get(get_url, headers=HEADERS, timeout=30)
+        resp = SESSION.get(url, timeout=60)
         resp.raise_for_status()
-        items = parse_news_table(resp.text)
-        print(f"  GET date-range fetch returned {len(items)} items")
-        return items
+        return parse_news_table(resp.text)
     except Exception as exc:
-        print(f"  GET date-range fetch also failed: {exc}")
+        print(f"  {start_date} → {end_date} failed: {exc}")
         return []
+
+
+def date_chunks(start: datetime, end: datetime, size_days: int = CHUNK_DAYS):
+    """Split a date range into consecutive windows of at most size_days."""
+    cursor = start
+    while cursor <= end:
+        chunk_end = min(cursor + timedelta(days=size_days - 1), end)
+        yield cursor, chunk_end
+        cursor = chunk_end + timedelta(days=1)
+
+
+def fetch_by_date_range(start_date: str, end_date: str) -> list[dict]:
+    """Fetch a date range in chunks so wide backfills do not time out."""
+    start = datetime.strptime(start_date, "%Y-%m-%d")
+    end = datetime.strptime(end_date, "%Y-%m-%d")
+
+    items: list[dict] = []
+    windows = list(date_chunks(start, end))
+    for i, (chunk_start, chunk_end) in enumerate(windows, 1):
+        s = chunk_start.strftime("%Y-%m-%d")
+        e = chunk_end.strftime("%Y-%m-%d")
+        chunk_items = fetch_window(s, e)
+        print(f"  [{i}/{len(windows)}] {s} → {e}: {len(chunk_items)} items")
+        items.extend(chunk_items)
+        if i < len(windows):
+            time.sleep(1.0)
+    return items
 
 
 def fetch_by_ticker(ticker: str) -> list[dict]:
@@ -285,7 +381,7 @@ def fetch_by_ticker(ticker: str) -> list[dict]:
         f"?inst={ticker}&criteria=3&archive=news"
     )
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=15)
+        resp = SESSION.get(url, timeout=30)
         resp.raise_for_status()
         return parse_news_table(resp.text, default_ticker=ticker)
     except Exception as exc:
@@ -299,6 +395,7 @@ def fetch_by_ticker(ticker: str) -> list[dict]:
 
 def main():
     full_sync = "--full" in sys.argv
+    trim = "--trim" in sys.argv
 
     data_path = Path(__file__).parent.parent / "public" / "newsData.json"
     with open(data_path, encoding="utf-8") as f:
@@ -327,12 +424,29 @@ def main():
         for item in real_existing
     }
 
-    # Date window
-    days_back = 730 if full_sync else 7
-    end_date = datetime.now().strftime("%Y-%m-%d")
-    start_date = (datetime.now() - timedelta(days=days_back)).strftime("%Y-%m-%d")
+    # ── Date window ────────────────────────────────────────────────────────
+    # Incremental runs start from the newest item already stored, not from a
+    # fixed number of days back. If the scraper breaks or the workflow is
+    # paused, the next successful run backfills the entire gap on its own
+    # instead of silently leaving a hole in the archive.
+    now = datetime.now()
+    end_date = now.strftime("%Y-%m-%d")
 
-    print(f"Fetching news: {start_date} → {end_date} ({'full sync' if full_sync else 'incremental'})")
+    if full_sync:
+        start_date = (now - timedelta(days=ARCHIVE_LIMIT_DAYS)).strftime("%Y-%m-%d")
+        mode = "full sync"
+    else:
+        newest = max((item["Date"] for item in real_existing), default=None)
+        if newest:
+            resume = datetime.strptime(newest, "%Y-%m-%d") - timedelta(days=OVERLAP_DAYS)
+            floor = now - timedelta(days=ARCHIVE_LIMIT_DAYS)
+            start_date = max(resume, floor).strftime("%Y-%m-%d")
+        else:
+            start_date = (now - timedelta(days=ARCHIVE_LIMIT_DAYS)).strftime("%Y-%m-%d")
+        gap_days = (now - datetime.strptime(start_date, "%Y-%m-%d")).days
+        mode = f"catch-up from newest stored item, {gap_days} day window"
+
+    print(f"Fetching news: {start_date} → {end_date} ({mode})")
 
     # Try efficient date-range fetch first
     raw_items = fetch_by_date_range(start_date, end_date)
@@ -391,16 +505,29 @@ def main():
 
     print(f"New items: {len(new_items)}")
 
-    # ── 2-year rolling window: drop items older than 730 days ──────────────
-    # Keeps the JSON file from growing indefinitely. Items that age out of
-    # DSE's own archive (also 2 years) are no longer linkable anyway.
-    cutoff = (datetime.now() - timedelta(days=730)).strftime("%Y-%m-%d")
-    kept = [item for item in real_existing if item["Date"] >= cutoff]
-    trimmed = len(real_existing) - len(kept)
-    if trimmed:
-        print(f"Trimmed {trimmed} items older than {cutoff} (2-year cap)")
+    # ── History retention ──────────────────────────────────────────────────
+    # Everything ever recorded is kept by default. DSE drops announcements from
+    # its own archive after two years, so this file is the only lasting record
+    # of them — trimming it would destroy history that cannot be re-fetched.
+    # Pass --trim to enforce a rolling window if the file ever gets too large.
+    if trim:
+        cutoff = (datetime.now() - timedelta(days=ARCHIVE_LIMIT_DAYS)).strftime("%Y-%m-%d")
+        kept = [item for item in real_existing if item["Date"] >= cutoff]
+        trimmed = len(real_existing) - len(kept)
+        if trimmed:
+            print(f"Trimmed {trimmed} items older than {cutoff} (--trim)")
+    else:
+        kept = real_existing
 
     data["newsList"] = new_items + kept
+
+    # Guard against a partial or malformed scrape silently deleting history.
+    if not trim and len(data["newsList"]) < len(real_existing):
+        print(
+            f"ERROR: refusing to write — result has {len(data['newsList'])} items "
+            f"but {len(real_existing)} were already stored."
+        )
+        sys.exit(1)
 
     with open(data_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
