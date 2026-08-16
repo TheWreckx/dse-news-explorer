@@ -159,13 +159,21 @@ a quiet stretch still produces a commit and the schedule stays alive.
 Everything else here is automated. These two need a human signed into an
 account, and both are worth doing once.
 
-**1. Google Search Console.** IndexNow (wired into the deploy workflow) notifies
-Bing and Yandex automatically, but Google does not participate. Sign in at
+**1. Google Search Console.** Sign in at
 [search.google.com/search-console](https://search.google.com/search-console),
 add `https://thewreckx.github.io/dse-news-explorer/` as a URL-prefix property,
 verify with the HTML-tag method (paste the tag into `index.html`), then submit
 `sitemap.xml`. Roughly fifteen minutes, and it is the difference between the
 398 company pages being indexed in days rather than weeks.
+
+This currently matters more than it should, because the automated alternative
+does not work here. IndexNow pushes updates to Bing and Yandex without an
+account, but it proves ownership by reading a key from the **root of the
+host** — and a GitHub Pages *project* site lives under a path it does not
+control. `submit_indexnow.mjs` detects this and skips with an explanation
+rather than pinging a rejecting endpoint. It starts working by itself the day
+the archive gets its own domain, which is the strongest practical argument for
+buying one.
 
 **2. An off-GitHub copy.** `archive-release.yml` publishes a checksummed
 monthly snapshot, which protects against a bad force-push or a corrupted

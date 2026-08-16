@@ -39,7 +39,36 @@ function collectUrls() {
   ];
 }
 
+/**
+ * IndexNow proves ownership by reading the key from the root of the host, not
+ * from a subdirectory. A GitHub Pages *project* site lives under a path, and
+ * the host root belongs to a different repository — so on the default
+ * github.io URL this can never validate, and submissions return 403.
+ *
+ * Rather than pinging a rejecting endpoint on every deploy, check first. This
+ * starts working on its own the moment the site gets a custom domain, or a
+ * <user>.github.io repository serves the key at its root.
+ */
+async function keyIsReachableAtHostRoot() {
+  try {
+    const response = await fetch(`https://${HOST}/${KEY}.txt`);
+    if (!response.ok) return false;
+    return (await response.text()).trim() === KEY;
+  } catch {
+    return false;
+  }
+}
+
 async function main() {
+  if (!(await keyIsReachableAtHostRoot())) {
+    console.log(
+      `IndexNow skipped: the key must be served at https://${HOST}/${KEY}.txt ` +
+      `but that path is not this site. This activates once the archive has its ` +
+      `own domain. Search engines still have sitemap.xml and robots.txt.`,
+    );
+    return;
+  }
+
   const urlList = collectUrls();
 
   const response = await fetch(ENDPOINT, {
