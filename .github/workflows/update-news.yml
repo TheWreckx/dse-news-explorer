@@ -39,6 +39,11 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r scripts/requirements.txt
 
+      # A routine misclassification hides an announcement from the default
+      # feed and produces no signal at all, so it has to be caught here.
+      - name: Check classification guards
+        run: python scripts/test_classify.py
+
       - name: Run scraper
         id: scraper
         run: |

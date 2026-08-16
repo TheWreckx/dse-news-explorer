@@ -39,11 +39,17 @@ ROUTINE_RULES: list[tuple[re.Pattern, str]] = [
     ), "Meeting_Schedule"),
 
     # Mechanical trading-status flags published around corporate actions.
+    #
+    # Deliberately limited to record-date and price-limit mechanics. A bare
+    # "Suspension of Trading" is NOT routine — it is how DSE announces an
+    # indefinite regulatory or distress halt, such as the five Islamic banks
+    # suspended together on 2025-11-06. Hiding those by default would bury the
+    # most material announcements in the archive, and because a hidden record
+    # produces no clicks and no complaints, the mistake would never surface.
     (re.compile(
         r"spot\s+news"
         r"|price\s+limit\s+(open|remove|removal)"
-        r"|(suspension\s+for|resumption\s+after)\s+record\s+date"
-        r"|resumption\s+of\s+trading|suspension\s+of\s+trading",
+        r"|(suspension\s+for|resumption\s+after)\s+record\s+date",
         re.I,
     ), "Trading_Status"),
 ]
@@ -88,6 +94,7 @@ TITLE_RULES: list[tuple[re.Pattern, str]] = [
         r"|inspection\s+(of|to)\s+.*(factory|premises|office)"
         r"|bsec\s+(order|decline|denies|rejects|cancel)"
         r"|halt\s+of\s+trading|trading\s+halt"
+        r"|(suspension|resumption)\s+of\s+trading"
         r"|non[\s-]?response\s+to|query\s+on\s+(hike|price|volume)",
         re.I,
     ), "Regulatory_Legal"),
