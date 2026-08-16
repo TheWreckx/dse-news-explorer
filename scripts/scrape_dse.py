@@ -9,6 +9,7 @@ Usage:
   python scripts/scrape_dse.py --trim    # also drop stored items over 2 years old
 """
 
+import hashlib
 import json
 import os
 import re
@@ -21,109 +22,13 @@ import urllib.request
 import certifi
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-# ---------------------------------------------------------------------------
-# Category taxonomy for keyword classification
-# ---------------------------------------------------------------------------
-DSE_TAXONOMY = {
-    # Checked in order — most specific first to avoid greedy early matches
-    "Distress_Bankruptcy": [
-        "bankruptcy", "insolvency", "liquidation", "winding up", "cib default",
-        "production suspension", "factory closure", "layoff", "auction",
-        "going concern", "qualified opinion", "asset seizure",
-        "adverse opinion", "disclaimer of opinion", "loan default",
-        "classified loan", "appoints administrator", "administrator for the company",
-        "financial difficulties", "unable to pay", "non-performing loan",
-        "write off", "write-off",
-    ],
-    "Capital_Structure": [
-        "rights issue", "right issue", "right share", "stock split", "reverse split",
-        "share buyback", "buy back shares", "par value", "paid-up capital",
-        "authorized capital", "dilution", "renunciation", "subscription period",
-        "capitalization of reserve", "initial public offering", "ipo proceeds",
-        "rpo proceeds", "capital raising proceeds", "subordinated bond",
-        "convertible bond", "preference share", "issuance of bond",
-        "bond of bdt", "right issue proceeds", "right issue fund",
-        "auditor's report regarding", "auditor report regarding",
-        "unsecured non-convertible", "irredeemable non-cumulative",
-        "mudaraba bond", "mudaraba subordinated", "bsec consent for issuance",
-        "bsec's consent for issuance", "bsec consent to issue",
-        "bsec's consent to issue", "bsec consent regarding issuance",
-        "consent for issuance", "consent to issue",
-    ],
-    "Regulatory_Legal": [
-        "bsec order", "show cause", "fine imposed", "penalty imposed",
-        "non-compliance", "trading suspension", "delisting", "category change",
-        "trading halt", "writ petition", "litigation", "forensic audit",
-        "enforcement action", "legal notice", "court order",
-        "bsec declines", "bsec denies", "bsec rejects", "bsec cancelled",
-        "bsec cancels", "price limit open", "price limit remove",
-        "prohibition on", "suspended from trading",
-        "btrc", "regulatory order", "regulatory action",
-    ],
-    "Asset_Events": [
-        "sale of assets", "disposal of property", "lease agreement",
-        "asset revaluation", "property sale", "land sale",
-        "purchase of land", "purchase of property", "renting out",
-        "rental agreement", "land purchase", "building additional",
-        "sublease", "sub-lease", "mortgage of property",
-        "sale of land", "acquiring land",
-    ],
-    "Restructuring_Ownership": [
-        "merger", "acquisition", "amalgamation", "takeover", "privatization",
-        "divestment", "spin-off", "sponsor share", "director purchase",
-        "director sale", "pledging of shares", "board reconstitution",
-        "management change", "cfo appointment", "company secretary",
-        "auditor appointment", "appointment of", "resignation of",
-        "managing director", "chief executive", "acting chairman",
-        "acting md", "acting ceo", "board of directors",
-        "buy confirmation", "sell confirmation", "sale declaration",
-        "purchase confirmation", "share transmission",
-        "agm date", "egm date", "annual general meeting", "extraordinary general meeting",
-        "election of chairman", "election of director", "election of vice",
-        "reconstitution of board", "change of director", "new director",
-        "change of chairman", "new chairman", "new ceo", "new md",
-        "change of auditor", "appointment of auditor",
-    ],
-    "Operations_Growth": [
-        "capacity expansion", "new production line", "commercial operation",
-        "export order", "joint venture", "memorandum of understanding",
-        "product launch", "machinery purchase", "new machinery",
-        "new machine", "new plant", "new equipment",
-        "credit rating", "crisl", "surveillance rating", "ecrl", "crab rating",
-        "new project", "commissioning", "business expansion",
-        "board approval for investment", "board approves investment",
-        "board approval for an investment", "board approval to invest",
-        "board approval for purchasing", "board approval for acquiring",
-        "board decision to import", "board decision to purchase",
-        "board approved the proposal", "board approves the proposal",
-        "board approves master", "board approval of",
-        "bangladesh bank consent for setting up", "bangladesh bank's approval for",
-        "bangladesh bank consent for opening", "mfs subsidiary",
-        "islamic finance window", "new branch", "spectrum",
-        "business agreement", "supply agreement", "manufacturing agreement",
-        "mou with", "mou signing", "investment in subsidiary",
-    ],
-    "Dividends_Earnings": [
-        "cash dividend", "stock dividend", "bonus share", "dividend declaration",
-        "no dividend", "interim dividend", "final dividend", "record date",
-        "earnings per share", "net asset value", "nocfps",
-        "financial statements", "quarterly report", "half-yearly", "half yearly",
-        "annual report", "annual financials",
-        "audited financials", "un-audited", "unaudited",
-        "q1 financials", "q2 financials", "q3 financials", "q4 financials",
-        "consolidated eps", "eps was tk", "nav was tk", "daily nav",
-        "earnings disclosure", "dividend payment",
-        "bangladesh bank consent for declaring dividend",
-        "applying to bb for permission to declare dividend",
-        "profit after tax", "loss after tax", "net profit", "net loss",
-        "operating profit", "pre-tax profit",
-    ],
-}
+from classify import classify
+from store import load_archive, save_archive
 
 FAKE_TITLE_PATTERN = re.compile(
     r"announces important updates on", re.IGNORECASE
@@ -220,18 +125,34 @@ def make_session() -> requests.Session:
     return session
 
 
-SESSION = make_session()
+_SESSION: requests.Session | None = None
+
+
+def session() -> requests.Session:
+    """Build the HTTP session on first use.
+
+    Created lazily so importing this module for its helpers — as
+    rebuild_derived.py does — costs no network round trip.
+    """
+    global _SESSION
+    if _SESSION is None:
+        _SESSION = make_session()
+    return _SESSION
+
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
-def classify_category(title: str, text: str) -> str:
-    combined = (title + " " + text).lower()
-    for category, keywords in DSE_TAXONOMY.items():
-        if any(kw in combined for kw in keywords):
-            return category
-    return "General"
+def content_hash(ticker: str, date: str, title: str, text: str) -> str:
+    """Stable fingerprint of an announcement as DSE published it.
+
+    This archive outlives DSE's own two-year retention window, so it may one
+    day be the only evidence of what was published. The hash lets anyone check
+    a stored record has not been altered since it was captured.
+    """
+    payload = f"{ticker}|{date}|{title}|{text}".encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()[:16]
 
 
 def parse_value(text: str) -> tuple[str, float]:
@@ -340,7 +261,7 @@ def fetch_window(start_date: str, end_date: str) -> list[dict]:
         f"?criteria=4&startDate={start_date}&endDate={end_date}&archive=news"
     )
     try:
-        resp = SESSION.get(url, timeout=60)
+        resp = session().get(url, timeout=60)
         resp.raise_for_status()
         return parse_news_table(resp.text)
     except Exception as exc:
@@ -381,7 +302,7 @@ def fetch_by_ticker(ticker: str) -> list[dict]:
         f"?inst={ticker}&criteria=3&archive=news"
     )
     try:
-        resp = SESSION.get(url, timeout=30)
+        resp = session().get(url, timeout=30)
         resp.raise_for_status()
         return parse_news_table(resp.text, default_ticker=ticker)
     except Exception as exc:
@@ -397,12 +318,8 @@ def main():
     full_sync = "--full" in sys.argv
     trim = "--trim" in sys.argv
 
-    data_path = Path(__file__).parent.parent / "public" / "newsData.json"
-    with open(data_path, encoding="utf-8") as f:
-        data = json.load(f)
-
-    tickers_list: list[dict] = data["tickersList"]
-    existing: list[dict] = data["newsList"]
+    public_dir = Path(__file__).parent.parent / "public"
+    tickers_list, existing = load_archive(public_dir)
 
     # Drop any fake/template items from existing data
     real_existing = [
@@ -473,6 +390,7 @@ def main():
     # Build new items
     new_items: list[dict] = []
     max_id = max((item["id"] for item in real_existing), default=0)
+    fetched_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     for raw in raw_items:
         # Only include listed tickers
@@ -484,6 +402,7 @@ def main():
             continue
 
         local_val, cr_val = parse_value(raw["text"])
+        category, routine = classify(raw["title"], raw["text"])
         max_id += 1
 
         new_items.append({
@@ -491,7 +410,8 @@ def main():
             "Date": raw["date"],
             "Ticker": raw["ticker"],
             "Industry": industry_lookup[raw["ticker"]],
-            "Category": classify_category(raw["title"], raw["text"]),
+            "Category": category,
+            "Is_Routine": routine,
             "Announced_Value_Local": local_val,
             "Standardized_Value_Tk_Cr": cr_val,
             "News_Title": raw["title"],
@@ -499,6 +419,10 @@ def main():
             "Source_URL": (
                 f"https://www.dsebd.org/old_news.php"
                 f"?inst={raw['ticker']}&criteria=3&archive=news"
+            ),
+            "Fetched_At": fetched_at,
+            "Content_Hash": content_hash(
+                raw["ticker"], raw["date"], raw["title"], raw["text"]
             ),
         })
         existing_keys.add(key)
@@ -519,22 +443,26 @@ def main():
     else:
         kept = real_existing
 
-    data["newsList"] = new_items + kept
+    combined = new_items + kept
 
     # Guard against a partial or malformed scrape silently deleting history.
-    if not trim and len(data["newsList"]) < len(real_existing):
+    if not trim and len(combined) < len(real_existing):
         print(
-            f"ERROR: refusing to write — result has {len(data['newsList'])} items "
+            f"ERROR: refusing to write — result has {len(combined)} items "
             f"but {len(real_existing)} were already stored."
         )
         sys.exit(1)
 
-    with open(data_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
+    meta = save_archive(public_dir, tickers_list, combined)
 
-    total = len(data["newsList"])
-    size_mb = data_path.stat().st_size / 1_048_576
-    print(f"Done — {total:,} items in newsData.json ({size_mb:.1f} MB)")
+    material_mb = (public_dir / "newsData.json").stat().st_size / 1_048_576
+    routine_mb = (public_dir / "newsRoutine.json").stat().st_size / 1_048_576
+    print(
+        f"Done — {meta['totalCount']:,} items "
+        f"({meta['materialCount']:,} material {material_mb:.1f} MB, "
+        f"{meta['routineCount']:,} routine {routine_mb:.1f} MB)"
+    )
+    print(f"Coverage: {meta['earliestDate']} → {meta['latestDate']}")
 
 
 if __name__ == "__main__":

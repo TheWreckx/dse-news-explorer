@@ -50,6 +50,11 @@ jobs:
         # If the scraper exits with code 1 (0 items from DSE), this step fails.
         # GitHub will email the repo owner automatically on workflow failure.
 
+      # Catches the quiet failure the scraper cannot see: DSE responds and
+      # parsing succeeds, but nothing new has landed for days.
+      - name: Verify the archive is still advancing
+        run: python scripts/check_freshness.py
+
       # Written on every successful run, even when DSE published nothing new.
       # Two purposes: the site can show when it last checked, and the resulting
       # daily commit counts as repository activity. GitHub disables scheduled
@@ -64,7 +69,7 @@ jobs:
         run: |
           git config user.name "DSE News Bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/newsData.json public/lastChecked.json
+          git add public/newsData.json public/newsRoutine.json public/lastChecked.json
           if git diff --staged --quiet; then
             echo "Nothing changed — nothing to commit"
           else

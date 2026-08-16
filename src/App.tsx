@@ -1,7 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { format, formatDistanceToNow } from 'date-fns';
 import './index.css';
-import type { Freshness, NewsItem, TickerInfo } from './types';
+import type { Freshness, NewsItem } from './types';
+import { useArchive } from './hooks/useArchive';
+import { useUrlState } from './hooks/useUrlState';
+import { buildSearchIndex, searchItems } from './lib/search';
 import TickerSidebar from './components/TickerSidebar';
 import FilterHeader from './components/FilterHeader';
 import NewsFeed from './components/NewsFeed';
@@ -27,31 +30,13 @@ function describeFreshness(lastChecked: unknown): Freshness | null {
 }
 
 function App() {
-  const [tickers, setTickers] = useState<TickerInfo[]>([]);
-  const [news, setNews] = useState<NewsItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [freshness, setFreshness] = useState<Freshness | null>(null);
+  const { tickers, material, routine, meta, loading, routineLoading, error, loadRoutine } = useArchive();
+  const { view, update, reset } = useUrlState();
 
-  const [selectedTickers, setSelectedTickers] = useState<string[]>([]);
-  const [selectedIndustry, setSelectedIndustry] = useState<string>('All');
-  const [selectedSubject, setSelectedSubject] = useState<string>('All');
-  const [dateRange, setDateRange] = useState<{ start: Date | null; end: Date | null }>({ start: null, end: null });
+  const [freshness, setFreshness] = useState<Freshness | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
-    fetch(import.meta.env.BASE_URL + 'newsData.json')
-      .then(res => res.json())
-      .then(data => {
-        setTickers(data.tickersList);
-        // Category from scraper is already the taxonomy key — use it directly
-        setNews(data.newsList);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Failed to load data', err);
-        setLoading(false);
-      });
-
     // Written by the scraper workflow on every successful run. Absent on the
     // very first deploy, so a failure here must not block the feed.
     fetch(import.meta.env.BASE_URL + 'lastChecked.json')
@@ -60,41 +45,55 @@ function App() {
       .catch(() => setFreshness(null));
   }, []);
 
+  // Requesting routine notices triggers their one-time download.
+  useEffect(() => {
+    if (view.showRoutine) loadRoutine();
+  }, [view.showRoutine, loadRoutine]);
+
+  const activeNews = useMemo<NewsItem[]>(
+    () => (view.showRoutine ? [...material, ...routine] : material),
+    [view.showRoutine, material, routine],
+  );
+
+  const searchIndex = useMemo(() => buildSearchIndex(activeNews), [activeNews]);
+
   const toggleTicker = (ticker: string) => {
-    setSelectedTickers(prev =>
-      prev.includes(ticker) ? prev.filter(t => t !== ticker) : [...prev, ticker]
-    );
+    update({
+      tickers: view.tickers.includes(ticker)
+        ? view.tickers.filter(t => t !== ticker)
+        : [...view.tickers, ticker],
+    });
   };
 
-  // Derive categories from actual data so the dropdown always matches what's in the JSON
-  const categories = useMemo(() =>
-    Array.from(new Set(news.map(item => item.Category))).sort(),
-    [news]
+  const categories = useMemo(
+    () => Array.from(new Set(activeNews.map(item => item.Category))).sort(),
+    [activeNews],
   );
 
-  const industries = useMemo(() =>
-    Array.from(new Set(tickers.map(t => t.industry))).sort(),
-    [tickers]
+  const industries = useMemo(
+    () => Array.from(new Set(tickers.map(t => t.industry))).sort(),
+    [tickers],
   );
 
-  const filteredNews = useMemo(() =>
-    news
-      .filter(item => {
-        if (selectedTickers.length > 0 && !selectedTickers.includes(item.Ticker)) return false;
-        if (selectedIndustry !== 'All' && item.Industry !== selectedIndustry) return false;
-        if (selectedSubject !== 'All' && item.Category !== selectedSubject) return false;
+  const filteredNews = useMemo(() => {
+    // Search first: it both filters and establishes relevance order.
+    const matches = searchItems(searchIndex, view.query);
+    const hasQuery = view.query.trim().length > 0;
 
-        if (dateRange.start || dateRange.end) {
-          const itemDate = new Date(item.Date);
-          if (dateRange.start && itemDate < dateRange.start) return false;
-          if (dateRange.end && itemDate > dateRange.end) return false;
-        }
+    const filtered = matches.filter(item => {
+      if (view.tickers.length > 0 && !view.tickers.includes(item.Ticker)) return false;
+      if (view.industry !== 'All' && item.Industry !== view.industry) return false;
+      if (view.category !== 'All' && item.Category !== view.category) return false;
+      if (view.from && item.Date < view.from) return false;
+      if (view.to && item.Date > view.to) return false;
+      return true;
+    });
 
-        return true;
-      })
-      .sort((a, b) => new Date(b.Date).getTime() - new Date(a.Date).getTime()),
-    [news, selectedTickers, selectedIndustry, selectedSubject, dateRange]
-  );
+    // Relevance ranking only makes sense when the reader actually searched.
+    return hasQuery
+      ? filtered
+      : filtered.sort((a, b) => b.Date.localeCompare(a.Date));
+  }, [searchIndex, view]);
 
   if (loading) {
     return (
@@ -104,11 +103,20 @@ function App() {
     );
   }
 
+  if (error && material.length === 0) {
+    return (
+      <div className="app-container" style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: '10px' }}>
+        <h2 className="text-gradient">Could not load the archive</h2>
+        <p style={{ color: 'var(--text-secondary)' }}>{error}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="app-container">
       <TickerSidebar
         tickers={tickers}
-        selectedTickers={selectedTickers}
+        selectedTickers={view.tickers}
         toggleTicker={toggleTicker}
       />
 
@@ -116,17 +124,24 @@ function App() {
         <FilterHeader
           industries={industries}
           categories={categories}
-          selectedIndustry={selectedIndustry}
-          setSelectedIndustry={setSelectedIndustry}
-          selectedCategory={selectedSubject}
-          setSelectedCategory={setSelectedSubject}
-          dateRange={dateRange}
-          setDateRange={setDateRange}
+          selectedIndustry={view.industry}
+          setSelectedIndustry={industry => update({ industry })}
+          selectedCategory={view.category}
+          setSelectedCategory={category => update({ category })}
+          query={view.query}
+          setQuery={query => update({ query })}
+          dateRange={{ start: view.from, end: view.to }}
+          setDateRange={range => update({ from: range.start, to: range.end })}
+          showRoutine={view.showRoutine}
+          setShowRoutine={showRoutine => update({ showRoutine })}
+          routineLoading={routineLoading}
           totalResults={filteredNews.length}
           viewMode={viewMode}
           setViewMode={setViewMode}
           filteredNews={filteredNews}
           freshness={freshness}
+          meta={meta}
+          onReset={reset}
         />
 
         <div className="content-area">
