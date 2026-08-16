@@ -20,3 +20,9 @@ export interface NewsDataPayload {
   tickersList: TickerInfo[];
   newsList: NewsItem[];
 }
+
+/** How recently the scraper last checked DSE, ready for display. */
+export interface Freshness {
+  label: string;
+  isStale: boolean;
+}

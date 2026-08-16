@@ -50,14 +50,25 @@ jobs:
         # If the scraper exits with code 1 (0 items from DSE), this step fails.
         # GitHub will email the repo owner automatically on workflow failure.
 
-      - name: Commit and push if data changed
+      # Written on every successful run, even when DSE published nothing new.
+      # Two purposes: the site can show when it last checked, and the resulting
+      # daily commit counts as repository activity. GitHub disables scheduled
+      # workflows after 60 days without activity, so a run of quiet days must
+      # never leave the repository silent.
+      - name: Record last successful check
+        run: |
+          printf '{"lastChecked":"%s"}\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
+            > public/lastChecked.json
+
+      - name: Commit and push
         run: |
           git config user.name "DSE News Bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/newsData.json
+          git add public/newsData.json public/lastChecked.json
           if git diff --staged --quiet; then
-            echo "No new items today — nothing to commit"
+            echo "Nothing changed — nothing to commit"
           else
             git commit -m "chore: update DSE news data $(date -u '+%Y-%m-%d')"
+            git pull --rebase --autostash origin main
             git push
           fi

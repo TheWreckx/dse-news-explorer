@@ -1,14 +1,36 @@
 import { useState, useEffect, useMemo } from 'react';
+import { format, formatDistanceToNow } from 'date-fns';
 import './index.css';
-import type { NewsItem, TickerInfo } from './types';
+import type { Freshness, NewsItem, TickerInfo } from './types';
 import TickerSidebar from './components/TickerSidebar';
 import FilterHeader from './components/FilterHeader';
 import NewsFeed from './components/NewsFeed';
+
+/** A scrape more than two days old means the pipeline is stuck, not that DSE was quiet. */
+const STALE_AFTER_HOURS = 48;
+
+function describeFreshness(lastChecked: unknown): Freshness | null {
+  if (typeof lastChecked !== 'string') return null;
+
+  const checked = new Date(lastChecked);
+  if (Number.isNaN(checked.getTime())) return null;
+
+  const hoursAgo = (Date.now() - checked.getTime()) / 3_600_000;
+  const isStale = hoursAgo > STALE_AFTER_HOURS;
+
+  return {
+    label: isStale
+      ? `Last updated ${format(checked, 'd MMM yyyy')}`
+      : `Updated ${formatDistanceToNow(checked, { addSuffix: true })}`,
+    isStale,
+  };
+}
 
 function App() {
   const [tickers, setTickers] = useState<TickerInfo[]>([]);
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [freshness, setFreshness] = useState<Freshness | null>(null);
 
   const [selectedTickers, setSelectedTickers] = useState<string[]>([]);
   const [selectedIndustry, setSelectedIndustry] = useState<string>('All');
@@ -29,6 +51,13 @@ function App() {
         console.error('Failed to load data', err);
         setLoading(false);
       });
+
+    // Written by the scraper workflow on every successful run. Absent on the
+    // very first deploy, so a failure here must not block the feed.
+    fetch(import.meta.env.BASE_URL + 'lastChecked.json')
+      .then(res => (res.ok ? res.json() : null))
+      .then(data => setFreshness(describeFreshness(data?.lastChecked)))
+      .catch(() => setFreshness(null));
   }, []);
 
   const toggleTicker = (ticker: string) => {
@@ -97,6 +126,7 @@ function App() {
           viewMode={viewMode}
           setViewMode={setViewMode}
           filteredNews={filteredNews}
+          freshness={freshness}
         />
 
         <div className="content-area">

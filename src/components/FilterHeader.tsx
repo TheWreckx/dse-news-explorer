@@ -1,6 +1,6 @@
 import { FiFilter, FiClock, FiGrid, FiList, FiDownload, FiCalendar } from 'react-icons/fi';
 import * as XLSX from 'xlsx';
-import type { NewsItem } from '../types';
+import type { Freshness, NewsItem } from '../types';
 import DseLogo from './DseLogo';
 
 interface FilterHeaderProps {
@@ -16,6 +16,7 @@ interface FilterHeaderProps {
   viewMode: 'grid' | 'list';
   setViewMode: (mode: 'grid' | 'list') => void;
   filteredNews: NewsItem[];
+  freshness: Freshness | null;
 }
 
 const selectStyle: React.CSSProperties = {
@@ -57,6 +58,7 @@ const FilterHeader = ({
   viewMode,
   setViewMode,
   filteredNews,
+  freshness,
 }: FilterHeaderProps) => {
   const today = new Date().toISOString().split('T')[0];
 
@@ -118,6 +120,34 @@ const FilterHeader = ({
 
         {/* Spacer */}
         <div style={{ flex: 1 }} />
+
+        {/* Freshness indicator */}
+        {freshness && (
+          <div
+            title="When the scraper last checked dsebd.org for new announcements"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '0.78rem',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              color: freshness.isStale ? 'var(--warning, #e0a33e)' : 'var(--text-muted, #8b93a7)',
+            }}
+          >
+            <span
+              aria-hidden="true"
+              style={{
+                width: '7px',
+                height: '7px',
+                borderRadius: '50%',
+                background: freshness.isStale ? 'var(--warning, #e0a33e)' : '#3fbf7f',
+                flexShrink: 0,
+              }}
+            />
+            {freshness.label}
+          </div>
+        )}
 
         {/* Records badge */}
         <div style={{ background: 'rgba(255,255,255,0.05)', padding: '5px 12px', borderRadius: '20px', fontSize: '0.82rem', fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0 }}>
